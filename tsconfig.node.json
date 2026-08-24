@@ -1,0 +1,36 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "e2e/**/*.ts",
+    "capacitor.config.ts",
+    "eslint.config.js",
+    "scripts/**/*.ts",
+    "src/router/routePaths.ts",
+    "src/router/routes.ts",
+    "src/build/dist-verification.ts",
+    "src/build/audit-build.ts",
+    "src/pwa/manifest.ts",
+    "src/pwa/visualTokens.ts",
+    "src/pwa/workbox-config.ts",
+    "src/config/site.ts",
+    "src/seo/robots.ts",
+    "src/seo/sitemap.ts",
+    "src/build/prerender-artifacts.ts"
+  ]
+}
