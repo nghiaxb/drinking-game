@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Drinking Games splash">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a5aa0"/>
+      <stop offset="100%" stop-color="#206bc4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="640" cy="300" r="120" fill="#ffffff" opacity="0.12"/>
+  <path d="M560 340c20-60 140-60 160 0" stroke="#ffffff" stroke-width="18" stroke-linecap="round" fill="none"/>
+  <circle cx="600" cy="280" r="14" fill="#ffffff"/>
+  <circle cx="680" cy="280" r="14" fill="#ffffff"/>
+  <text x="640" y="500" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Drinking Games</text>
+  <text x="640" y="560" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#dbeafe">Offline party games</text>
+</svg>

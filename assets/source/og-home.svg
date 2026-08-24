@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Drinking Games">
+  <rect width="1200" height="630" fill="#206bc4"/>
+  <rect x="48" y="48" width="1104" height="534" rx="32" fill="#ffffff" opacity="0.08"/>
+  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Drinking Games</text>
+  <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#dbeafe">Five offline party mini games</text>
+  <text x="96" y="380" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#ffffff">Install PWA - Play without network</text>
+</svg>

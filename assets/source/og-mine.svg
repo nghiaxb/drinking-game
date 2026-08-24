@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Mine">
+  <rect width="1200" height="630" fill="#b45309"/>
+  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Mine</text>
+  <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#ffedd5">Mini game - Drinking Games</text>
+  <g fill="#ffffff" opacity="0.9">
+    <rect x="860" y="250" width="72" height="72" rx="12"/>
+    <rect x="948" y="250" width="72" height="72" rx="12"/>
+    <rect x="1036" y="250" width="72" height="72" rx="12"/>
+    <rect x="860" y="338" width="72" height="72" rx="12"/>
+    <rect x="948" y="338" width="72" height="72" rx="12" fill="#ef4444"/>
+    <rect x="1036" y="338" width="72" height="72" rx="12"/>
+  </g>
+</svg>

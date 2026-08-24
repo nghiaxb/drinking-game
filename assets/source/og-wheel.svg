@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Wheel">
+  <rect width="1200" height="630" fill="#7c3aed"/>
+  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Wheel</text>
+  <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#ede9fe">Mini game - Drinking Games</text>
+  <circle cx="980" cy="330" r="110" fill="none" stroke="#ffffff" stroke-width="18"/>
+  <path d="M980 220 L980 330 L1070 380 Z" fill="#ffffff" opacity="0.85"/>
+</svg>
