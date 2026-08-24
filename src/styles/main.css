@@ -1,0 +1,201 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fredoka';
+@import '@fontsource-variable/nunito';
+
+@theme {
+  --font-display: 'Fredoka Variable', system-ui, sans-serif;
+  --font-body: 'Nunito Variable', system-ui, sans-serif;
+
+  --color-surface: #fef6e8;
+  --color-surface-elevated: #fff9f0;
+  --color-surface-muted: #f3e8d8;
+  --color-ink: #2d2420;
+  --color-ink-muted: #6b5f58;
+  --color-accent: #e85d4c;
+  --color-accent-hover: #d14a3a;
+  --color-accent-soft: #ffd4cc;
+  --color-teal: #2a9d8f;
+  --color-teal-soft: #b8e8e0;
+  --color-amber: #f4a261;
+  --color-amber-soft: #ffe4c4;
+  --color-coral: #e76f51;
+  --color-border: #e8ddd0;
+
+  --spacing-safe-top: env(safe-area-inset-top, 0px);
+  --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --spacing-safe-left: env(safe-area-inset-left, 0px);
+  --spacing-safe-right: env(safe-area-inset-right, 0px);
+
+  --radius-tactile: 1rem;
+  --radius-pill: 9999px;
+
+  --shadow-tactile: 0 4px 0 0 color-mix(in srgb, var(--color-ink) 12%, transparent);
+  --shadow-tactile-pressed: 0 1px 0 0 color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app {
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .app-root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-content {
+    flex: 1;
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
+    padding-inline: max(1rem, var(--spacing-safe-left), var(--spacing-safe-right));
+  }
+
+  .btn-tactile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-tactile);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    touch-action: manipulation;
+    box-shadow: var(--shadow-tactile);
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease,
+      background-color 0.12s ease;
+  }
+
+  .btn-tactile:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: var(--shadow-tactile-pressed);
+  }
+
+  .btn-tactile:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .btn-tactile-primary {
+    background: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 80%, var(--color-ink));
+    color: white;
+  }
+
+  .btn-tactile-primary:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  .btn-icon {
+    padding: 0.625rem;
+  }
+
+  .card-tactile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 4.5rem;
+    padding: 1rem;
+    border-radius: var(--radius-tactile);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    box-shadow: var(--shadow-tactile);
+    text-decoration: none;
+    color: inherit;
+    touch-action: manipulation;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+
+  .card-tactile:active {
+    transform: translateY(2px);
+    box-shadow: var(--shadow-tactile-pressed);
+  }
+
+  .game-surface {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .toast-banner {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-tactile);
+    border: 2px solid var(--color-teal);
+    background: var(--color-teal-soft);
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  .pt-safe {
+    padding-top: max(0.75rem, var(--spacing-safe-top));
+  }
+
+  .pb-safe {
+    padding-bottom: max(0.75rem, var(--spacing-safe-bottom));
+  }
+
+  .px-safe {
+    padding-left: max(1rem, var(--spacing-safe-left));
+    padding-right: max(1rem, var(--spacing-safe-right));
+  }
+}
