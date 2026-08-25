@@ -1,0 +1,14 @@
+# Static-host headers (Cloudflare Pages / Netlify syntax).
+#
+# Only the service worker and the manifest are pinned. A stale sw.js is the one cached file that
+# can strand users on an old build, because every later update is discovered through it.
+#
+# Deliberately no blanket rule for /assets/*: that directory holds Vite's content-hashed bundles
+# *and* the unhashed game artwork (assets/crocodile/*.webp), so marking it immutable would freeze
+# the artwork across releases.
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache

@@ -1,0 +1,10 @@
+# Static-host fallback (Cloudflare Pages / Netlify syntax).
+#
+# vite-ssg prerenders the six indexable routes to real HTML, and the host serves those files
+# directly — this rule only applies when no file matches. It covers the two routes that are
+# deliberately not prerendered:
+#   /settings          noIndex, so the app shell rendering it client-side costs nothing
+#   anything unknown   renders the app's own not-found view instead of the host's 404 page
+#
+# Both are noIndex, so returning 200 here does not put a soft 404 in the index.
+/*  /index.html  200
