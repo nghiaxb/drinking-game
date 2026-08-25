@@ -1,10 +1,22 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/fredoka';
-@import '@fontsource-variable/nunito';
+/*
+ * Be Vietnam Pro is drawn for Vietnamese, so one family covers headings and body without a
+ * fallback seam. The previous display face (Fredoka) had no `vietnamese` subset — its latin-ext
+ * stops short of U+1EA0-1EF1, so every tone-marked vowel (ấ ắ ệ ố ...) dropped to system-ui and
+ * headings rendered in two fonts mid-word.
+ *
+ * Import the per-weight entrypoints, not the per-subset ones: only these carry `unicode-range`,
+ * and without it the last @font-face declared would win for every character — reintroducing the
+ * exact gap this replaces.
+ */
+@import '@fontsource/be-vietnam-pro/400.css';
+@import '@fontsource/be-vietnam-pro/500.css';
+@import '@fontsource/be-vietnam-pro/600.css';
+@import '@fontsource/be-vietnam-pro/700.css';
 
 @theme {
-  --font-display: 'Fredoka Variable', system-ui, sans-serif;
-  --font-body: 'Nunito Variable', system-ui, sans-serif;
+  --font-display: 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
 
   --color-surface: #fef6e8;
   --color-surface-elevated: #fff9f0;

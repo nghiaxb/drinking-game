@@ -18,7 +18,7 @@ export default defineConfig({
       registerType: 'prompt',
       manifest: PWA_MANIFEST as ManifestOptions,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,woff,ttf,mp3,wav,ogg,txt}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,mp3,wav,ogg,txt}'],
         navigateFallback: WORKBOX_NAVIGATE_FALLBACK,
         navigateFallbackDenylist: WORKBOX_NAVIGATE_FALLBACK_DENYLIST,
         runtimeCaching: [
