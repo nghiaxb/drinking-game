@@ -94,213 +94,204 @@ export function toyFitsViewportWithoutScroll(viewportPx: number): boolean {
 export const CROCODILE_ART_WIDTH = 320
 export const CROCODILE_ART_HEIGHT = 330
 
-export interface CrocodileToothSlot {
-  index: number
-  row: 'upper' | 'lower'
-  xPercent: number
-  yPercent: number
-  scale: number
-  heightScale: number
-  rotationDeg: number
-  sinkDepthPx: number
-  pressedOffsetPx: number
-  socketWidthPercent: number
-  socketHeightPercent: number
-  profileIndex: number
-  highlightOpacity: number
+/** Toy box aspect from `.crocodile-toy--layout-responsive`. */
+export const CROCODILE_TOY_ASPECT = 420 / 360
+
+export type CrocodileLanePoint = readonly [number, number]
+type Point = CrocodileLanePoint
+
+function roundTo(value: number, digits: number): number {
+  const factor = 10 ** digits
+  return Math.round(value * factor) / factor
 }
 
 /**
- * Hand-tuned against the twelve raster socket centers in crocodile-base.webp.
- * Values intentionally do not derive from a shared arc/curve formula.
+ * The jaw arc follows the photograph's own tooth line; only the *spacing* along it is redrawn.
+ *
+ * The raster's twelve sockets sit anywhere from 17px to 35px apart at a 320px toy, so teeth pinned
+ * to them are crowded at the back and roomy at the front - no hit-testing scheme fixes that. But
+ * replacing the curve with a rounded-rect U (which is the longest path through this box, and so the
+ * roomiest) reads as a rectangular frame and loses the toy's shape entirely. So: keep the measured
+ * curve, spline through it, and place the teeth by equal arc length. Every tooth ends up the same
+ * ~28px apart instead of some at 17px, and the jaw still looks like a jaw.
  */
-const LOWER_JAW_TOOTH_SLOTS = [
-  // Raster socket center (235.5, 373.5): far-left/rear.
-  {
-    xPercent: 23,
-    yPercent: 62.87,
-    scale: 0.84,
-    heightScale: 0.74,
-    rotationDeg: 0.3,
-    sinkDepthPx: 3.4,
-    pressedOffsetPx: 6.2,
-    socketWidthPercent: 5.05,
-    socketHeightPercent: 2.47,
-    profileIndex: 0,
-    highlightOpacity: 0.62,
-  },
-  // Raster socket center (228.5, 428.5).
-  {
-    xPercent: 22.31,
-    yPercent: 67.48,
-    scale: 0.89,
-    heightScale: 0.79,
-    rotationDeg: 0.2,
-    sinkDepthPx: 3.3,
-    pressedOffsetPx: 6.4,
-    socketWidthPercent: 5.55,
-    socketHeightPercent: 2.77,
-    profileIndex: 1,
-    highlightOpacity: 0.67,
-  },
-  // Raster socket center (230.2, 489.1).
-  {
-    xPercent: 22.48,
-    yPercent: 72.55,
-    scale: 0.945,
-    heightScale: 0.82,
-    rotationDeg: 0.8,
-    sinkDepthPx: 3.2,
-    pressedOffsetPx: 6.6,
-    socketWidthPercent: 5.95,
-    socketHeightPercent: 3.13,
-    profileIndex: 1,
-    highlightOpacity: 0.71,
-  },
-  // Raster socket center (264.9, 550.5): the arc turns sharply here.
-  {
-    xPercent: 25.87,
-    yPercent: 77.69,
-    scale: 1,
-    heightScale: 0.88,
-    rotationDeg: 2.8,
-    sinkDepthPx: 3,
-    pressedOffsetPx: 7,
-    socketWidthPercent: 7.05,
-    socketHeightPercent: 3.5,
-    profileIndex: 2,
-    highlightOpacity: 0.76,
-  },
-  // Raster socket center (352.4, 598.6).
-  {
-    xPercent: 34.41,
-    yPercent: 81.72,
-    scale: 1.055,
-    heightScale: 0.96,
-    rotationDeg: 1.4,
-    sinkDepthPx: 2.8,
-    pressedOffsetPx: 7.3,
-    socketWidthPercent: 7.7,
-    socketHeightPercent: 3.31,
-    profileIndex: 3,
-    highlightOpacity: 0.81,
-  },
-  // Raster socket center (460.7, 620.7): front-left.
-  {
-    xPercent: 44.99,
-    yPercent: 83.57,
-    scale: 1.095,
-    heightScale: 1,
-    rotationDeg: 0.3,
-    sinkDepthPx: 2.6,
-    pressedOffsetPx: 7.6,
-    socketWidthPercent: 5.7,
-    socketHeightPercent: 2.65,
-    profileIndex: 4,
-    highlightOpacity: 0.86,
-  },
-  // Raster socket center (559.7, 620.4): front-right.
-  {
-    xPercent: 54.66,
-    yPercent: 83.54,
-    scale: 1.075,
-    heightScale: 0.98,
-    rotationDeg: -0.2,
-    sinkDepthPx: 2.7,
-    pressedOffsetPx: 7.5,
-    socketWidthPercent: 5.3,
-    socketHeightPercent: 2.53,
-    profileIndex: 3,
-    highlightOpacity: 0.82,
-  },
-  // Raster socket center (657.9, 599.6).
-  {
-    xPercent: 64.25,
-    yPercent: 81.8,
-    scale: 1.045,
-    heightScale: 0.94,
-    rotationDeg: -1.3,
-    sinkDepthPx: 2.8,
-    pressedOffsetPx: 7.3,
-    socketWidthPercent: 7.2,
-    socketHeightPercent: 3.31,
-    profileIndex: 4,
-    highlightOpacity: 0.84,
-  },
-  // Raster socket center (748.3, 551.4): mirrored perspective turn.
-  {
-    xPercent: 73.08,
-    yPercent: 77.76,
-    scale: 0.995,
-    heightScale: 0.87,
-    rotationDeg: -2.6,
-    sinkDepthPx: 3,
-    pressedOffsetPx: 7,
-    socketWidthPercent: 7.45,
-    socketHeightPercent: 3.61,
-    profileIndex: 2,
-    highlightOpacity: 0.75,
-  },
-  // Raster socket center (788, 489).
-  {
-    xPercent: 76.95,
-    yPercent: 72.54,
-    scale: 0.945,
-    heightScale: 0.81,
-    rotationDeg: -0.8,
-    sinkDepthPx: 3.2,
-    pressedOffsetPx: 6.6,
-    socketWidthPercent: 6,
-    socketHeightPercent: 3.25,
-    profileIndex: 1,
-    highlightOpacity: 0.7,
-  },
-  // Raster socket center (791.4, 428.1).
-  {
-    xPercent: 77.29,
-    yPercent: 67.45,
-    scale: 0.89,
-    heightScale: 0.78,
-    rotationDeg: -0.3,
-    sinkDepthPx: 3.3,
-    pressedOffsetPx: 6.4,
-    socketWidthPercent: 5.75,
-    socketHeightPercent: 2.95,
-    profileIndex: 1,
-    highlightOpacity: 0.66,
-  },
-  // Raster socket center (786, 374): far-right/rear.
-  {
-    xPercent: 76.76,
-    yPercent: 62.91,
-    scale: 0.83,
-    heightScale: 0.73,
-    rotationDeg: -0.4,
-    sinkDepthPx: 3.4,
-    pressedOffsetPx: 6.2,
-    socketWidthPercent: 5.05,
-    socketHeightPercent: 2.47,
-    profileIndex: 0,
-    highlightOpacity: 0.6,
-  },
-] as const
+const PHOTO_TOOTH_LINE: readonly Point[] = [
+  [24.12, 62.33],
+  [22.41, 67.23],
+  [22.8, 72.38],
+  [26.27, 77.53],
+  [34.47, 81.42],
+  [44.87, 83.3],
+  [55.13, 83.22],
+  [64.7, 81.5],
+  [73.29, 77.61],
+  [76.76, 72.42],
+  [77.0, 66.85],
+  [76.46, 62.46],
+]
+
+/**
+ * Widening about the arc's own centroid, to buy back a little spacing without changing its shape.
+ * Capped so the crowns keep a margin of gum outside them: pushed further, the outermost teeth
+ * spill off the plate onto the green shell.
+ */
+export const CROCODILE_ARC_WIDENING = 1.06
+
+/**
+ * Camera model: the gum is a horizontal plane seen from above at a fixed elevation, so every
+ * socket is an axis-aligned superellipse squashed by the same factor, and each tooth is that same
+ * superellipse extruded straight up. A tooth cannot mis-fit its socket - it *is* its socket.
+ */
+export const CROCODILE_VIEW_SQUASH = 0.55
+/** Socket half-width as a share of the tooth spacing, so the gum walls between them stay even. */
+export const CROCODILE_SOCKET_PITCH_SHARE = 0.475
+/** How much farther sockets shrink with depth (weak perspective). */
+export const CROCODILE_DEPTH_FALLOFF = 0.22
+/** Crown height as a multiple of its own width - a tooth stands up, it is not a tablet. */
+export const CROCODILE_CROWN_ASPECT = 1.2
+/**
+ * Crown inset inside its socket. A crown that nearly fills its hole hides it, and then nothing
+ * tells the eye the tooth is *in* something - it reads as a pale tablet lying on flat red. The
+ * visible ring of dark hole is what sells the depth.
+ */
+export const CROCODILE_TOOTH_SOCKET_INSET = 0.88
+/** Superellipse exponent: 2 is an ellipse, higher is a rounded rectangle. */
+export const CROCODILE_SUPERELLIPSE_N = 3.4
+
+export interface CrocodileArcPoint {
+  point: Point
+  tangent: Point
+}
+
+/** Isotropic space: x is % of toy width (centred on 0), y is % of toy height at the same scale. */
+function toIsotropic([x, y]: Point): Point {
+  return [x - 50, y * CROCODILE_TOY_ASPECT]
+}
+
+function catmullRom(t: number, p0: Point, p1: Point, p2: Point, p3: Point): Point {
+  const t2 = t * t
+  const t3 = t2 * t
+  const axis = (i: 0 | 1) =>
+    0.5 *
+    (2 * p1[i] +
+      (-p0[i] + p2[i]) * t +
+      (2 * p0[i] - 5 * p1[i] + 4 * p2[i] - p3[i]) * t2 +
+      (-p0[i] + 3 * p1[i] - 3 * p2[i] + p3[i]) * t3)
+  return [axis(0), axis(1)]
+}
+
+function buildArcPolyline(): Point[] {
+  const knots = PHOTO_TOOTH_LINE.map(toIsotropic)
+  const beyond = (a: Point, b: Point): Point => [a[0] + (a[0] - b[0]), a[1] + (a[1] - b[1])]
+  const control: Point[] = [
+    beyond(knots[0]!, knots[1]!),
+    ...knots,
+    beyond(knots[knots.length - 1]!, knots[knots.length - 2]!),
+  ]
+
+  const steps = 60
+  const dense: Point[] = []
+  for (let segment = 0; segment < control.length - 3; segment += 1) {
+    for (let i = 0; i < steps; i += 1) {
+      dense.push(
+        catmullRom(
+          i / steps,
+          control[segment]!,
+          control[segment + 1]!,
+          control[segment + 2]!,
+          control[segment + 3]!,
+        ),
+      )
+    }
+  }
+  dense.push(control[control.length - 2]!)
+
+  const cx = dense.reduce((sum, q) => sum + q[0], 0) / dense.length
+  const cy = dense.reduce((sum, q) => sum + q[1], 0) / dense.length
+  return dense.map(([x, y]) => [
+    cx + (x - cx) * CROCODILE_ARC_WIDENING,
+    cy + (y - cy) * CROCODILE_ARC_WIDENING,
+  ])
+}
+
+const ARC_POLYLINE = buildArcPolyline()
+const ARC_CUMULATIVE = ARC_POLYLINE.reduce<number[]>((acc, point, index) => {
+  if (index === 0) {
+    acc.push(0)
+    return acc
+  }
+  const previous = ARC_POLYLINE[index - 1]!
+  acc.push(acc[index - 1]! + Math.hypot(point[0] - previous[0], point[1] - previous[1]))
+  return acc
+}, [])
+export const CROCODILE_JAW_ARC_LENGTH_CQW = ARC_CUMULATIVE[ARC_CUMULATIVE.length - 1]!
+
+/** Point and unit tangent at arc distance `u` from the left rear end. */
+export function jawArcAt(u: number): CrocodileArcPoint {
+  const clamped = Math.max(0, Math.min(CROCODILE_JAW_ARC_LENGTH_CQW, u))
+  let hi = ARC_CUMULATIVE.length - 1
+  let lo = 0
+  while (lo < hi - 1) {
+    const mid = (lo + hi) >> 1
+    if (ARC_CUMULATIVE[mid]! <= clamped) lo = mid
+    else hi = mid
+  }
+  const a = ARC_POLYLINE[lo]!
+  const b = ARC_POLYLINE[Math.min(lo + 1, ARC_POLYLINE.length - 1)]!
+  const span = ARC_CUMULATIVE[lo + 1]! - ARC_CUMULATIVE[lo]!
+  const k = span ? (clamped - ARC_CUMULATIVE[lo]!) / span : 0
+  const length = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+  return {
+    point: [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k],
+    tangent: [(b[0] - a[0]) / length, (b[1] - a[1]) / length],
+  }
+}
+
+/** Even spacing along the arc, in cqw. */
+export const CROCODILE_TOOTH_PITCH_CQW =
+  CROCODILE_JAW_ARC_LENGTH_CQW / CROCODILE_CONFIG.lowerRowCount
+export const CROCODILE_SOCKET_RX_CQW = CROCODILE_TOOTH_PITCH_CQW * CROCODILE_SOCKET_PITCH_SHARE
+
+export interface CrocodileToothSlot {
+  index: number
+  row: 'upper' | 'lower'
+  /** Visual centre, as percentages of the toy box. */
+  xPercent: number
+  yPercent: number
+  /** 0 at the front centre of the arc, 1 at the rear ends. */
+  depth: number
+  socketRxCqw: number
+  socketRyCqw: number
+  toothRxCqw: number
+  toothRyCqw: number
+  toothHeightCqw: number
+}
 
 export function computeToothSlot(row: 'upper' | 'lower', offsetInRow: number): CrocodileToothSlot {
   const index = row === 'upper' ? offsetInRow : CROCODILE_CONFIG.upperRowCount + offsetInRow
-  const tuning = LOWER_JAW_TOOTH_SLOTS[index] ?? {
-    xPercent: 50,
-    yPercent: 72,
-    scale: 1,
-    heightScale: 1,
-    rotationDeg: 0,
-    sinkDepthPx: 2,
-    pressedOffsetPx: 5,
-    socketWidthPercent: 5,
-    socketHeightPercent: 2.5,
-    profileIndex: 2,
-    highlightOpacity: 0.75,
+  const { point } = jawArcAt(CROCODILE_TOOTH_PITCH_CQW * (offsetInRow + 0.5))
+  const ys = ARC_POLYLINE.map((q) => q[1])
+  const yr = Math.min(...ys)
+  const yf = Math.max(...ys)
+  const depth = Math.max(0, Math.min(1, (yf - point[1]) / (yf - yr)))
+  const shrink = 1 - CROCODILE_DEPTH_FALLOFF * depth
+  const socketRx = CROCODILE_SOCKET_RX_CQW * shrink
+
+  return {
+    index,
+    row,
+    xPercent: roundTo(point[0] + 50, 3),
+    yPercent: roundTo(point[1] / CROCODILE_TOY_ASPECT, 3),
+    depth: roundTo(depth, 4),
+    socketRxCqw: roundTo(socketRx, 3),
+    socketRyCqw: roundTo(socketRx * CROCODILE_VIEW_SQUASH, 3),
+    toothRxCqw: roundTo(socketRx * CROCODILE_TOOTH_SOCKET_INSET, 3),
+    toothRyCqw: roundTo(socketRx * CROCODILE_VIEW_SQUASH * CROCODILE_TOOTH_SOCKET_INSET, 3),
+    toothHeightCqw: roundTo(
+      socketRx * 2 * CROCODILE_TOOTH_SOCKET_INSET * CROCODILE_CROWN_ASPECT,
+      3,
+    ),
   }
-  return { index, row, ...tuning }
 }
 
 export function computeAllToothSlots(): CrocodileToothSlot[] {
@@ -320,4 +311,298 @@ export function toothSlotFitsArt(
   const hitPx = CROCODILE_CONFIG.minTouchTargetPx
   const centerX = (slot.xPercent / 100) * artWidthPx
   return centerX - hitPx / 2 >= 0 && centerX + hitPx / 2 <= artWidthPx
+}
+
+/** Even spacing along the arc, in px, at a given toy width. */
+export function computeToothPitchPx(toyWidthPx: number): number {
+  return (CROCODILE_TOOTH_PITCH_CQW / 100) * toyWidthPx
+}
+
+// ---------------------------------------------------------------------------
+// Path builders. Output is in toy percentages, for an SVG whose viewBox is
+// `0 0 100 100` with `preserveAspectRatio="none"`, so x maps to width and y to height.
+// ---------------------------------------------------------------------------
+
+function toPathData(points: readonly Point[], close: boolean): string {
+  const body = points
+    .map(
+      ([x, y], index) =>
+        `${index ? 'L' : 'M'}${roundTo(x + 50, 3)} ${roundTo(y / CROCODILE_TOY_ASPECT, 3)}`,
+    )
+    .join('')
+  return close ? `${body}Z` : body
+}
+
+/** Superellipse arc in isotropic space, sampled into a polyline. */
+function superellipsePoints(
+  centre: Point,
+  rx: number,
+  ry: number,
+  fromAngle: number,
+  toAngle: number,
+  steps: number,
+): Point[] {
+  const exponent = 2 / CROCODILE_SUPERELLIPSE_N
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const angle = fromAngle + ((toAngle - fromAngle) * i) / steps
+    const c = Math.cos(angle)
+    const s = Math.sin(angle)
+    return [
+      centre[0] + rx * Math.sign(c) * Math.abs(c) ** exponent,
+      centre[1] + ry * Math.sign(s) * Math.abs(s) ** exponent,
+    ] as Point
+  })
+}
+
+function slotCentre(slot: CrocodileToothSlot): Point {
+  return [slot.xPercent - 50, slot.yPercent * CROCODILE_TOY_ASPECT]
+}
+
+/** A socket opening: the full rounded-rect ring, squashed by the view angle. */
+export function buildSocketPath(slot: CrocodileToothSlot, scale = 1): string {
+  return toPathData(
+    superellipsePoints(
+      slotCentre(slot),
+      slot.socketRxCqw * scale,
+      slot.socketRyCqw * scale,
+      0,
+      Math.PI * 2,
+      72,
+    ),
+    true,
+  )
+}
+
+/**
+ * The near lip of a socket, as a crescent between the hole and a slightly larger ring. Drawn *over*
+ * the crown, it is the one cue that makes a tooth read as standing inside a hole rather than
+ * floating above a dark smudge.
+ */
+export function buildSocketRimPath(
+  slot: CrocodileToothSlot,
+  from: number,
+  to: number,
+  half: 'near' | 'far',
+): string {
+  const centre = slotCentre(slot)
+  const [a, b] = half === 'near' ? [0, Math.PI] : [Math.PI, Math.PI * 2]
+  const inner = superellipsePoints(
+    centre,
+    slot.socketRxCqw * from,
+    slot.socketRyCqw * from,
+    a,
+    b,
+    36,
+  )
+  const outer = superellipsePoints(centre, slot.socketRxCqw * to, slot.socketRyCqw * to, b, a, 36)
+  return `${toPathData(inner, false)}${toPathData(outer, false).replace('M', 'L')}Z`
+}
+
+export interface CrocodileToothSprite {
+  /** Sprite box in toy percentages, ready for an SVG `<image>` in the 0 0 100 100 viewBox. */
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/**
+ * Box for the photographed crown. Its base sits almost on the socket's *near* edge, not its centre:
+ * a peg standing in a hole shows the hole's dark interior behind it and nothing in front, so the
+ * visible crescent of well has to fall on the far side. Putting the base mid-socket puts the dark
+ * band under the tooth instead, which reads as a drop shadow and makes the tooth look pasted on.
+ */
+export function computeToothSprite(
+  slot: CrocodileToothSlot,
+  heightScale = 1,
+): CrocodileToothSprite {
+  const width = slot.toothRxCqw * 2
+  const height = width * CROCODILE_CROWN_ASPECT * heightScale
+  const baseY = slot.yPercent + (slot.socketRyCqw * 0.92) / CROCODILE_TOY_ASPECT
+  return {
+    x: roundTo(slot.xPercent - width / 2, 3),
+    y: roundTo(baseY - height / CROCODILE_TOY_ASPECT, 3),
+    width: roundTo(width, 3),
+    height: roundTo(height / CROCODILE_TOY_ASPECT, 3),
+  }
+}
+
+/**
+ * Hit lanes.
+ *
+ * The raster sockets sit only ~17px apart along the rear of the arc at the 320px toy width, so a
+ * 44px AAA square per tooth is geometrically impossible — the previous axis-aligned rectangles
+ * bought their size by overlapping (~10px between teeth 4 and 5), which let a tap on one tooth
+ * fire its neighbour. In a game where picking the wrong tooth is the whole point, that is worse
+ * than a small target, so lanes now tile the arc exactly: adjacent lanes share one seam segment,
+ * leaving no overlap and no dead gap. Depth is spent perpendicular to the arc, out over the dead
+ * green shell, where there is room.
+ */
+export const CROCODILE_LANE_OUTWARD_CQW = 11.5
+export const CROCODILE_LANE_INWARD_CQW = 6.5
+/** End teeth have open space behind them, so their outer seam runs past the mirrored midpoint. */
+export const CROCODILE_LANE_END_EXTENSION = 1.45
+/** Amplifies how much of a shared seam the larger of two neighbouring teeth claims. */
+export interface CrocodileToothHitLane {
+  index: number
+  /** Offsets/size in cqw (1cqw = 1% of toy width), relative to the tooth's visual centre. */
+  offsetXCqw: number
+  offsetYCqw: number
+  widthCqw: number
+  heightCqw: number
+  /** `clip-path` polygon, vertices as percentages of the lane's bounding box. */
+  clipPath: string
+}
+
+/**
+ * Isotropic cqw space, centred on the *visible crown* rather than on the socket: the crown stands
+ * up out of its hole, so a lane centred on the socket would sit below what the player is aiming at.
+ */
+function toLaneSpace(slot: CrocodileToothSlot): Point {
+  return [slot.xPercent, slot.yPercent * CROCODILE_TOY_ASPECT - slot.toothHeightCqw / 2]
+}
+
+/** Where the hit lane is anchored, as toy percentages — the button is positioned here. */
+export function computeLaneAnchor(slot: CrocodileToothSlot): {
+  xPercent: number
+  yPercent: number
+} {
+  const [x, y] = toLaneSpace(slot)
+  return { xPercent: roundTo(x, 3), yPercent: roundTo(y / CROCODILE_TOY_ASPECT, 3) }
+}
+
+function outwardNormal(from: Point, to: Point, at: Point, centroid: Point): Point {
+  const length = Math.hypot(to[0] - from[0], to[1] - from[1])
+  const tangent: Point = [(to[0] - from[0]) / length, (to[1] - from[1]) / length]
+  const normal: Point = [-tangent[1], tangent[0]]
+  const facesOutward = (at[0] - centroid[0]) * normal[0] + (at[1] - centroid[1]) * normal[1] >= 0
+  return facesOutward ? normal : [-normal[0], -normal[1]]
+}
+
+interface Seam {
+  outer: Point
+  inner: Point
+}
+
+/** Seam `i` separates tooth `i - 1` from tooth `i`, so there is one more seam than teeth. */
+function computeLaneSeams(centers: readonly Point[]): Seam[] {
+  const centroid: Point = [
+    centers.reduce((sum, point) => sum + point[0], 0) / centers.length,
+    centers.reduce((sum, point) => sum + point[1], 0) / centers.length,
+  ]
+
+  return Array.from({ length: centers.length + 1 }, (_, seamIndex) => {
+    const isFirst = seamIndex === 0
+    const isLast = seamIndex === centers.length
+
+    let fromIndex = seamIndex - 1
+    let toIndex = seamIndex
+    if (isFirst) {
+      fromIndex = 0
+      toIndex = 1
+    } else if (isLast) {
+      fromIndex = centers.length - 2
+      toIndex = centers.length - 1
+    }
+    const from = centers[fromIndex]!
+    const to = centers[toIndex]!
+
+    let midpoint: Point = [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2]
+    if (isFirst || isLast) {
+      const anchor = isFirst ? from : to
+      const halfStep: Point = [(to[0] - from[0]) / 2, (to[1] - from[1]) / 2]
+      const direction = isFirst ? -CROCODILE_LANE_END_EXTENSION : CROCODILE_LANE_END_EXTENSION
+      midpoint = [anchor[0] + halfStep[0] * direction, anchor[1] + halfStep[1] * direction]
+    }
+
+    const normal = outwardNormal(from, to, midpoint, centroid)
+    return {
+      outer: [
+        midpoint[0] + normal[0] * CROCODILE_LANE_OUTWARD_CQW,
+        midpoint[1] + normal[1] * CROCODILE_LANE_OUTWARD_CQW,
+      ],
+      inner: [
+        midpoint[0] - normal[0] * CROCODILE_LANE_INWARD_CQW,
+        midpoint[1] - normal[1] * CROCODILE_LANE_INWARD_CQW,
+      ],
+    }
+  })
+}
+
+export function computeToothHitLanes(
+  slots: readonly CrocodileToothSlot[] = computeAllToothSlots(),
+): CrocodileToothHitLane[] {
+  const centers = slots.map(toLaneSpace)
+  const seams = computeLaneSeams(centers)
+
+  return slots.map((slot, index) => {
+    const center = centers[index]!
+    const quad: Point[] = [
+      seams[index]!.outer,
+      seams[index + 1]!.outer,
+      seams[index + 1]!.inner,
+      seams[index]!.inner,
+    ]
+
+    const minX = Math.min(...quad.map((point) => point[0]))
+    const maxX = Math.max(...quad.map((point) => point[0]))
+    const minY = Math.min(...quad.map((point) => point[1]))
+    const maxY = Math.max(...quad.map((point) => point[1]))
+    const width = maxX - minX
+    const height = maxY - minY
+
+    const clipPath = quad
+      .map(
+        (point) =>
+          `${roundTo(((point[0] - minX) / width) * 100, 2)}% ${roundTo(((point[1] - minY) / height) * 100, 2)}%`,
+      )
+      .join(', ')
+
+    return {
+      index: slot.index,
+      offsetXCqw: roundTo(minX - center[0], 2),
+      offsetYCqw: roundTo(minY - center[1], 2),
+      widthCqw: roundTo(width, 2),
+      heightCqw: roundTo(height, 2),
+      clipPath: `polygon(${clipPath})`,
+    }
+  })
+}
+
+/** Lane corners in cqw space — exposed so tests can assert the tiling has no overlap or gap. */
+export function computeToothLaneQuads(
+  slots: readonly CrocodileToothSlot[] = computeAllToothSlots(),
+): Point[][] {
+  const seams = computeLaneSeams(slots.map(toLaneSpace))
+  return slots.map((_, index) => [
+    seams[index]!.outer,
+    seams[index + 1]!.outer,
+    seams[index + 1]!.inner,
+    seams[index]!.inner,
+  ])
+}
+
+export function computeLaneAreaCqw2(quad: readonly Point[]): number {
+  let doubleArea = 0
+  for (let index = 0; index < quad.length; index += 1) {
+    const current = quad[index]!
+    const next = quad[(index + 1) % quad.length]!
+    doubleArea += current[0] * next[1] - next[0] * current[1]
+  }
+  return Math.abs(doubleArea) / 2
+}
+
+export function laneContainsPoint(quad: readonly Point[], point: Point): boolean {
+  let inside = false
+  for (let i = 0, j = quad.length - 1; i < quad.length; j = i++) {
+    const [xi, yi] = quad[i]!
+    const [xj, yj] = quad[j]!
+    if (yi > point[1] !== yj > point[1]) {
+      const crossX = ((xj - xi) * (point[1] - yi)) / (yj - yi) + xi
+      if (point[0] < crossX) {
+        inside = !inside
+      }
+    }
+  }
+  return inside
 }

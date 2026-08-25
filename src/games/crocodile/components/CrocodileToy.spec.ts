@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import CrocodileToy from './CrocodileToy.vue'
 import { CROCODILE_CONFIG } from '../config'
+import { computeAllToothSlots, computeLaneAnchor, computeToothHitLanes } from '../layout'
 
 const defaultProps = {
   upperRowCount: CROCODILE_CONFIG.upperRowCount,
@@ -54,7 +55,6 @@ describe('CrocodileToy', () => {
 
     const tooth = wrapper.get('[data-testid="crocodile-tooth-0"]')
     expect(tooth.classes()).toContain('crocodile-tooth--touch')
-    expect(tooth.classes()).not.toContain('scale-')
   })
 
   it('exposes wide layout contract tuned for 375px viewport', () => {
@@ -102,7 +102,6 @@ describe('CrocodileToy', () => {
     expect(teeth).toHaveLength(CROCODILE_CONFIG.toothCount)
     for (const tooth of teeth) {
       expect(tooth.element.tagName).toBe('BUTTON')
-      expect(tooth.find('[data-testid="crocodile-tooth-shape"]').exists()).toBe(true)
       expect(tooth.classes()).toContain('crocodile-tooth--touch')
     }
   })
@@ -122,39 +121,86 @@ describe('CrocodileToy', () => {
     const wrapper = mount(CrocodileToy, { props: defaultProps })
     const teeth = wrapper.findAll('button[data-testid^="crocodile-tooth-"]')
 
-    expect(teeth[0]?.attributes('style')).toContain('left: 23%')
-    expect(teeth[0]?.attributes('style')).toContain('top: 62.87%')
-    expect(teeth[5]?.attributes('style')).toContain('left: 44.99%')
-    expect(teeth[5]?.attributes('style')).toContain('top: 83.57%')
-    expect(teeth[11]?.attributes('style')).toContain('left: 76.76%')
+    const slots = computeAllToothSlots()
+    for (const [index, tooth] of teeth.entries()) {
+      const anchor = computeLaneAnchor(slots[index]!)
+      expect(tooth.attributes('style')).toContain(`left: ${anchor.xPercent}%`)
+    }
+    // A U around the jaw: the ends sit high and symmetric, the middle sits low.
+    expect(slots[0]!.yPercent).toBeLessThan(slots[5]!.yPercent)
+    // The arc traces a photograph of a real object, so it is near-symmetric, not symmetric.
+    expect(slots[0]!.xPercent + slots[11]!.xPercent).toBeCloseTo(100, 0)
   })
 
-  it('keeps each molded socket centered under its matching interactive tooth', () => {
+  it('anchors each hit target on its own crown', () => {
     const wrapper = mount(CrocodileToy, { props: defaultProps })
 
-    for (let index = 0; index < CROCODILE_CONFIG.toothCount; index += 1) {
-      const toothStyle =
-        wrapper.get(`[data-testid="crocodile-tooth-${index}"]`).attributes('style') ?? ''
-      const socketStyle =
-        wrapper.get(`[data-testid="crocodile-tooth-socket-${index}"]`).attributes('style') ?? ''
-      const toothPosition = toothStyle.match(/left: [^;]+; top: [^;]+/u)?.[0]
+    for (const slot of computeAllToothSlots()) {
+      const anchor = computeLaneAnchor(slot)
+      const style = wrapper.get(`[data-testid="crocodile-tooth-${slot.index}"]`).attributes('style')
 
-      expect(socketStyle).toContain(toothPosition)
-      expect(socketStyle).toContain('--socket-rotate:')
+      expect(style).toContain(`left: ${anchor.xPercent}%`)
+      expect(style).toContain(`top: ${anchor.yPercent}%`)
+      // The crown stands above its socket, so the target must sit above the socket centre too.
+      expect(anchor.yPercent).toBeLessThan(slot.yPercent)
     }
   })
 
-  it('extends rear-tooth hit lanes outward without moving their visual centers', () => {
+  it('sizes every hit lane in toy percentages without moving its visual center', () => {
     const wrapper = mount(CrocodileToy, { props: defaultProps })
-    const farLeftStyle = wrapper.get('[data-testid="crocodile-tooth-0"]').attributes('style')
-    const farRightStyle = wrapper.get('[data-testid="crocodile-tooth-11"]').attributes('style')
+    const lanes = computeToothHitLanes()
 
-    expect(farLeftStyle).toContain('--tooth-hit-width: 58px')
-    expect(farLeftStyle).toContain('--tooth-hit-offset-x: -8px')
-    expect(farLeftStyle).toContain('left: 23%')
-    expect(farRightStyle).toContain('--tooth-hit-width: 58px')
-    expect(farRightStyle).toContain('--tooth-hit-offset-x: 8px')
-    expect(farRightStyle).toContain('left: 76.76%')
+    for (const lane of lanes) {
+      const style = wrapper.get(`[data-testid="crocodile-tooth-${lane.index}"]`).attributes('style')
+
+      expect(style).toContain(`--tooth-lane-w: ${lane.widthCqw}cqw`)
+      expect(style).toContain(`--tooth-lane-h: ${lane.heightCqw}cqw`)
+      expect(style).toContain(`--tooth-lane-x: ${lane.offsetXCqw}cqw`)
+      expect(style).toContain(`--tooth-lane-y: ${lane.offsetYCqw}cqw`)
+      expect(style).toContain('--tooth-lane-clip: polygon(')
+    }
+
+    const slots = computeAllToothSlots()
+    expect(wrapper.get('[data-testid="crocodile-tooth-0"]').attributes('style')).toContain(
+      `left: ${computeLaneAnchor(slots[0]!).xPercent}%`,
+    )
+  })
+
+  it('keeps a real viewBox on the jaw drawing', () => {
+    // A bound `:view-box` is silently dropped (SVG attribute names are case-sensitive), which
+    // leaves the path coordinates to be read as raw pixels: the whole jaw then renders
+    // off-register and at the wrong size, with nothing failing anywhere else.
+    const wrapper = mount(CrocodileToy, { props: defaultProps })
+    const art = wrapper.get('[data-testid="crocodile-jaw-art"]').element
+
+    expect(art.getAttribute('viewBox')).toBe('0 0 100 100')
+    expect(art.getAttribute('preserveAspectRatio')).toBe('none')
+    expect(art.getAttribute('view-box')).toBeNull()
+  })
+
+  it('draws every socket and its crown in the one coordinate system', () => {
+    const wrapper = mount(CrocodileToy, { props: defaultProps })
+    const art = wrapper.get('[data-testid="crocodile-jaw-art"]')
+
+    for (let index = 0; index < CROCODILE_CONFIG.toothCount; index += 1) {
+      expect(art.find(`[data-testid="crocodile-tooth-socket-${index}"]`).exists()).toBe(true)
+      expect(art.find(`[data-testid="crocodile-tooth-shape-${index}"]`).exists()).toBe(true)
+    }
+    // One drawing, not twelve islands: a tooth in its own box can drift out of its hole.
+    expect(wrapper.findAll('[data-testid="crocodile-jaw-art"]')).toHaveLength(1)
+  })
+
+  it('marks a pressed crown so it sinks into its own socket', () => {
+    const wrapper = mount(CrocodileToy, {
+      props: { ...defaultProps, pressedIndices: [4] },
+    })
+
+    expect(wrapper.get('[data-testid="crocodile-tooth-shape-4"]').classes()).toContain(
+      'crocodile-tooth-art--pressed',
+    )
+    expect(wrapper.get('[data-testid="crocodile-tooth-shape-5"]').classes()).not.toContain(
+      'crocodile-tooth-art--pressed',
+    )
   })
 
   it('lets lower teeth receive clicks through the upper jaw overlay', async () => {

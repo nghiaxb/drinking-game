@@ -33,14 +33,14 @@ export const PRIMARY_CONTROL_SELECTORS = [
   '[data-testid="cards-draw-button"]',
   '[data-testid="crocodile-replay"]',
   '[data-testid="mine-replay"]',
-  '[data-testid^="crocodile-tooth-"]',
+  'button[data-testid^="crocodile-tooth-"]',
   '[data-testid^="mine-cell-"]',
   '.btn-tactile-primary',
   '[data-testid^="home-game-"]',
 ].join(', ')
 
 export const ROUTE_PRIMARY_CONTROL_SELECTORS: Record<string, string> = {
-  '/games/crocodile': '[data-testid^="crocodile-tooth-"]',
+  '/games/crocodile': 'button[data-testid^="crocodile-tooth-"]',
   '/games/mine': '[data-testid^="mine-cell-"]',
   '/games/wheel': '[data-testid="wheel-spin-button"]',
   '/games/slot': '[data-testid="slot-lever"]',

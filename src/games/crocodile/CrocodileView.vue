@@ -12,7 +12,7 @@
       <p class="mt-1 text-sm text-ink-muted">Chọn răng an toàn — dính bẫy thì uống!</p>
     </header>
 
-    <div class="flex flex-1 flex-col items-center justify-center gap-4">
+    <div class="flex flex-1 flex-col items-center justify-center">
       <div
         class="crocodile-stage crocodile-stage--responsive w-full"
         data-testid="crocodile-stage"
@@ -26,26 +26,26 @@
           :jaw-closed="game.jawClosed.value"
           @press="onPressTooth"
         />
-      </div>
 
-      <div
-        v-if="game.isTerminal.value && resultVisible"
-        class="crocodile-result w-full max-w-xs rounded-2xl border-2 border-accent bg-accent-soft px-4 py-4 text-center shadow-tactile"
-        data-testid="crocodile-result"
-        role="status"
-        aria-live="assertive"
-      >
-        <p class="font-display text-xl font-bold text-ink">🐊 CÁ SẤU CẮN!</p>
-        <p class="mt-1 text-lg font-semibold text-accent">🍺 UỐNG!</p>
-        <button
-          type="button"
-          class="btn-tactile btn-tactile-primary mt-4 w-full"
-          data-testid="crocodile-replay"
-          @click="onReplay"
-        >
-          <IconRefresh :size="20" stroke="2" aria-hidden="true" />
-          Chơi lại
-        </button>
+        <div v-if="game.isTerminal.value && resultVisible" class="crocodile-result-layer">
+          <div
+            class="crocodile-result w-full max-w-xs rounded-2xl border-2 border-accent bg-accent-soft px-4 py-4 text-center shadow-tactile"
+            data-testid="crocodile-result"
+            role="alert"
+          >
+            <p class="font-display text-xl font-bold text-ink">🐊 CÁ SẤU CẮN!</p>
+            <p class="mt-1 text-lg font-semibold text-accent">🍺 UỐNG!</p>
+            <button
+              type="button"
+              class="btn-tactile btn-tactile-primary mt-4 w-full"
+              data-testid="crocodile-replay"
+              @click="onReplay"
+            >
+              <IconRefresh :size="20" stroke="2" aria-hidden="true" />
+              Chơi lại
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -137,8 +137,31 @@ function onReplay(): void {
   margin-inline: calc(-1 * max(1rem, var(--spacing-safe-left), var(--spacing-safe-right)));
 }
 
+/**
+ * The bite payoff must never sit below the fold: the toy already fills a short viewport, so an
+ * in-flow result card pushed the layout and forced a scroll at the one moment nobody wants to
+ * scroll. Anchoring to the stage — the one box the player is guaranteed to be looking at — keeps
+ * the card on screen without touching the toy's geometry.
+ */
+.crocodile-stage--responsive {
+  position: relative;
+}
+
+.crocodile-result-layer {
+  position: absolute;
+  right: 0;
+  bottom: 1%;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding-inline: 1rem;
+  pointer-events: none;
+}
+
 .crocodile-result {
   animation: crocodile-result-in 0.16s cubic-bezier(0.2, 0.82, 0.3, 1) both;
+  pointer-events: auto;
 }
 
 @keyframes crocodile-result-in {
