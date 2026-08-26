@@ -1,6 +1,12 @@
 import { DICE_CHALLENGES } from '../challengeConfig'
 import { DEFAULT_SYMBOL_WEIGHTS } from '../probabilities'
-import { buildNonTripleAnnouncement, pickReelSymbols, resolveReward, type RandomSource } from '../rewards'
+import {
+  buildResultAnnouncement,
+  pickReelSymbols,
+  resolveReward,
+  type RandomSource,
+} from '../rewards'
+import { formatSymbolRow } from '../symbols'
 import type { ReelVisualStatus, SlotGameState, SpinPlan, SymbolWeights } from '../types'
 
 export type { RandomSource } from '../rewards'
@@ -58,8 +64,7 @@ export function buildReelAriaLabel(
 
 export function buildStatusAriaLabel(
   phase: SlotGameState['phase'],
-  rewardLabel: string | null,
-  isJackpot: boolean,
+  result: Pick<SlotGameState, 'outcome' | 'rewardLabel' | 'isJackpot' | 'symbols'>,
 ): string {
   if (phase === 'idle') {
     return 'Sẵn sàng kéo cần.'
@@ -68,10 +73,12 @@ export function buildStatusAriaLabel(
     return 'Đang quay guồng.'
   }
   if (phase === 'result') {
-    if (isJackpot) {
-      return rewardLabel ? `Jackpot! ${rewardLabel}` : 'Jackpot!'
-    }
-    return buildNonTripleAnnouncement(rewardLabel ?? '')
+    return buildResultAnnouncement(
+      result.outcome ?? 'miss',
+      result.isJackpot,
+      result.rewardLabel ?? '',
+      formatSymbolRow(result.symbols ?? []),
+    )
   }
 
   return 'Kết quả hiển thị.'

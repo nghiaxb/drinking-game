@@ -70,7 +70,7 @@ describe('useSlotGame', () => {
     vi.useRealTimers()
   })
 
-  it('plays lose feedback for non-triple results', async () => {
+  it('plays lose feedback for non-jackpot results', async () => {
     vi.useFakeTimers()
     const playLose = vi.fn().mockResolvedValue(undefined)
     const rngValues = [0.22, 0, 0.5]

@@ -13,41 +13,67 @@ describe('SlotResult', () => {
     })
 
     expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-live')).toBe('assertive')
-    expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe('Jackpot! Uống 3 ngụm')
+    expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
+      'JACKPOT! — Uống 3 ngụm',
+    )
     expect(wrapper.text()).toContain('JACKPOT!')
     expect(wrapper.text()).toContain('Uống 3 ngụm')
   })
 
-  it('shows non-jackpot headline once with symbol row below', () => {
+  it('shows a pair reward on its own tier styling', () => {
     const wrapper = mount(SlotResult, {
       props: {
-        rewardLabel: '🍺 💀 🍀',
-        outcome: 'non-triple',
+        rewardLabel: 'Uống 1 ngụm',
+        outcome: 'pair',
         isJackpot: false,
+        symbolRow: '🍺 🍺 💀',
       },
     })
 
     const text = wrapper.text()
-    expect(text.match(/Không trúng jackpot/g)?.length).toBe(1)
-    expect(text).toContain('🍺 💀 🍀')
-    expect(wrapper.get('[data-testid="slot-result-symbol-row"]').text()).toBe('🍺 💀 🍀')
+    expect(text.match(/ĂN ĐÔI!/g)?.length).toBe(1)
+    expect(wrapper.get('[data-testid="slot-result-detail"]').text()).toBe('Uống 1 ngụm')
+    expect(wrapper.get('[data-testid="slot-result-symbol-row"]').text()).toBe('🍺 🍺 💀')
+    expect(wrapper.get('[data-testid="slot-result"]').classes()).toContain('bg-teal-soft')
     expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
-      'Không trúng jackpot — 🍺 💀 🍀',
+      'ĂN ĐÔI! — Uống 1 ngụm — 🍺 🍺 💀',
     )
   })
 
-  it('announces headline only when symbol row is empty', () => {
+  it('shows the miss action alongside the row that produced it', () => {
+    const wrapper = mount(SlotResult, {
+      props: {
+        rewardLabel: 'Chuyền cần cho người bên phải',
+        outcome: 'miss',
+        isJackpot: false,
+        symbolRow: '🍺 💀 🍀',
+      },
+    })
+
+    const text = wrapper.text()
+    expect(text.match(/Ba ô khác nhau/g)?.length).toBe(1)
+    expect(text).toContain('Chuyền cần cho người bên phải')
+    expect(wrapper.get('[data-testid="slot-result-symbol-row"]').text()).toBe('🍺 💀 🍀')
+    expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
+      'Ba ô khác nhau — Chuyền cần cho người bên phải — 🍺 💀 🍀',
+    )
+  })
+
+  it('announces headline only when there is nothing to report', () => {
     const wrapper = mount(SlotResult, {
       props: {
         rewardLabel: '',
-        outcome: 'non-triple',
+        outcome: 'miss',
         isJackpot: false,
       },
     })
 
-    expect(wrapper.text()).toContain('Không trúng jackpot')
+    expect(wrapper.text()).toContain('Ba ô khác nhau')
     expect(wrapper.find('[data-testid="slot-result-symbol-row"]').exists()).toBe(false)
-    expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe('Không trúng jackpot')
+    expect(wrapper.find('[data-testid="slot-result-detail"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
+      'Ba ô khác nhau',
+    )
   })
 
   it('emits replay when pressing replay button', async () => {

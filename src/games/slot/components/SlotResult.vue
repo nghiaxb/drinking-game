@@ -9,11 +9,11 @@
   >
     <p class="font-display text-xl font-bold text-ink">{{ headline }}</p>
     <p
-      v-if="detailLabel"
+      v-if="rewardLabel"
       class="mt-2 text-lg font-semibold text-ink"
       data-testid="slot-result-detail"
     >
-      {{ detailLabel }}
+      {{ rewardLabel }}
     </p>
     <p
       v-if="symbolRow"
@@ -37,15 +37,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { IconRefresh } from '@tabler/icons-vue'
-import { buildNonTripleAnnouncement, resolveOutcomeLabel } from '../rewards'
+import { buildResultAnnouncement, resolveOutcomeLabel } from '../rewards'
 import type { SpinOutcome } from '../types'
 
-const props = defineProps<{
-  rewardLabel: string
-  outcome: SpinOutcome
-  isJackpot: boolean
-  reducedMotion?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    rewardLabel: string
+    outcome: SpinOutcome
+    isJackpot: boolean
+    symbolRow?: string
+    reducedMotion?: boolean
+  }>(),
+  { symbolRow: '' },
+)
 
 defineEmits<{
   replay: []
@@ -53,22 +57,19 @@ defineEmits<{
 
 const headline = computed(() => resolveOutcomeLabel(props.outcome, props.isJackpot))
 
-const symbolRow = computed(() => (props.isJackpot ? '' : props.rewardLabel.trim()))
+const resultAriaLabel = computed(() =>
+  buildResultAnnouncement(props.outcome, props.isJackpot, props.rewardLabel, props.symbolRow),
+)
 
-const detailLabel = computed(() => (props.isJackpot ? props.rewardLabel : ''))
-
-const resultAriaLabel = computed(() => {
-  if (props.isJackpot) {
-    return `Jackpot! ${props.rewardLabel}`
-  }
-  return buildNonTripleAnnouncement(props.rewardLabel)
-})
-
+/** Three tiers get three weights of surface, so the payout size is readable before the text is. */
 const resultClass = computed(() => {
   if (props.isJackpot) {
     return props.reducedMotion
       ? 'border-accent bg-accent-soft'
       : 'border-accent bg-accent-soft slot-result--jackpot'
+  }
+  if (props.outcome === 'pair') {
+    return 'border-teal bg-teal-soft'
   }
   return 'border-ink/15 bg-surface'
 })

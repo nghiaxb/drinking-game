@@ -1,6 +1,5 @@
-import { DICE_CHALLENGES } from './challengeConfig'
+import { DICE_CHALLENGES, MISS_ACTIONS } from './challengeConfig'
 import { normalizeRngValue, pickWeightedSymbol } from './probabilities'
-import { formatSymbolRow } from './symbols'
 import type { ResolvedReward, SlotSymbolId, SpinOutcome, SymbolWeights } from './types'
 
 export const TRIPLE_REWARD_LABELS: Record<Exclude<SlotSymbolId, 'dice'>, string> = {
@@ -11,7 +10,22 @@ export const TRIPLE_REWARD_LABELS: Record<Exclude<SlotSymbolId, 'dice'>, string>
   fire: 'Đồng khởi',
 }
 
-export const NON_TRIPLE_HEADLINE = 'Không trúng jackpot'
+/**
+ * A pair is the same effect as its triple, one notch down. Only triples were ever rewarded before,
+ * which left 97% of pulls doing nothing at all — and a pull that does nothing is a wasted turn.
+ */
+export const PAIR_REWARD_LABELS: Record<SlotSymbolId, string> = {
+  beer: 'Uống 1 ngụm',
+  skull: 'Uống 2 ngụm',
+  clover: 'Miễn lượt này',
+  crown: 'Chỉ định 1 người uống 1 ngụm',
+  fire: 'Cả bàn uống 1 ngụm',
+  dice: 'Oẳn tù tì với người bên phải — thua uống 1 ngụm',
+}
+
+export const JACKPOT_HEADLINE = 'JACKPOT!'
+export const PAIR_HEADLINE = 'ĂN ĐÔI!'
+export const MISS_HEADLINE = 'Ba ô khác nhau'
 
 export function isTriple(symbols: readonly SlotSymbolId[]): boolean {
   if (symbols.length !== 3) {
@@ -20,89 +34,112 @@ export function isTriple(symbols: readonly SlotSymbolId[]): boolean {
   return symbols[0] === symbols[1] && symbols[1] === symbols[2]
 }
 
-export function pickDiceChallenge(
-  challenges: readonly string[],
-  raw: number,
-): string {
-  if (challenges.length === 0) {
-    return 'Thử thách ngẫu nhiên'
+/** The symbol that appears twice, or null when all three differ. */
+export function findPairSymbol(symbols: readonly SlotSymbolId[]): SlotSymbolId | null {
+  if (symbols.length !== 3 || isTriple(symbols)) {
+    return null
+  }
+
+  const [first, second, third] = symbols
+  if (first === second || first === third) {
+    return first ?? null
+  }
+  if (second === third) {
+    return second ?? null
+  }
+  return null
+}
+
+/** Shared picker for the dice and miss decks, so both survive a non-finite rng value. */
+function pickFromDeck(deck: readonly string[], raw: number, fallback: string): string {
+  if (deck.length === 0) {
+    return fallback
   }
 
   if (!Number.isFinite(raw)) {
     return raw === Number.POSITIVE_INFINITY
-      ? challenges[challenges.length - 1] ?? 'Thử thách ngẫu nhiên'
-      : challenges[0] ?? 'Thử thách ngẫu nhiên'
+      ? (deck[deck.length - 1] ?? fallback)
+      : (deck[0] ?? fallback)
   }
 
   const normalized = normalizeRngValue(raw)
-  const index = Math.min(challenges.length - 1, Math.floor(normalized * challenges.length))
-  return challenges[index] ?? challenges[0] ?? 'Thử thách ngẫu nhiên'
+  const index = Math.min(deck.length - 1, Math.floor(normalized * deck.length))
+  return deck[index] ?? deck[0] ?? fallback
 }
 
-export function buildNonTripleLabel(symbols: readonly SlotSymbolId[]): string {
-  return formatSymbolRow(symbols)
+export function pickDiceChallenge(challenges: readonly string[], raw: number): string {
+  return pickFromDeck(challenges, raw, 'Thử thách ngẫu nhiên')
 }
 
-export function buildNonTripleAnnouncement(symbolRow: string): string {
-  const trimmed = symbolRow.trim()
-  if (trimmed.length === 0) {
-    return NON_TRIPLE_HEADLINE
-  }
-  return `${NON_TRIPLE_HEADLINE} — ${trimmed}`
+export function pickMissAction(actions: readonly string[], raw: number): string {
+  return pickFromDeck(actions, raw, MISS_ACTIONS[0])
 }
 
 export function resolveReward(
   symbols: readonly SlotSymbolId[],
   rngValue: number,
   challenges: readonly string[] = DICE_CHALLENGES,
+  missActions: readonly string[] = MISS_ACTIONS,
 ): ResolvedReward {
+  // A malformed row is not a turn: stay inert rather than handing out an instruction.
   if (symbols.length !== 3) {
-    return {
-      outcome: 'non-triple',
-      rewardLabel: '',
-      isJackpot: false,
+    return { outcome: 'miss', rewardLabel: '', isJackpot: false }
+  }
+
+  if (isTriple(symbols)) {
+    const symbolId = symbols[0]!
+
+    if (symbolId === 'dice') {
+      return {
+        outcome: 'jackpot',
+        rewardLabel: pickDiceChallenge(challenges, rngValue),
+        isJackpot: true,
+      }
+    }
+
+    const tripleReward = TRIPLE_REWARD_LABELS[symbolId]
+    if (tripleReward) {
+      return { outcome: 'jackpot', rewardLabel: tripleReward, isJackpot: true }
     }
   }
 
-  if (!isTriple(symbols)) {
-    return {
-      outcome: 'non-triple',
-      rewardLabel: buildNonTripleLabel(symbols),
-      isJackpot: false,
-    }
+  const pairSymbol = findPairSymbol(symbols)
+  const pairReward = pairSymbol ? PAIR_REWARD_LABELS[pairSymbol] : undefined
+  if (pairReward) {
+    return { outcome: 'pair', rewardLabel: pairReward, isJackpot: false }
   }
 
-  const symbolId = symbols[0]
-
-  if (symbolId === 'dice') {
-    return {
-      outcome: 'jackpot',
-      rewardLabel: pickDiceChallenge(challenges, rngValue),
-      isJackpot: true,
-    }
-  }
-
-  const reward = TRIPLE_REWARD_LABELS[symbolId]
-  if (reward) {
-    return {
-      outcome: 'jackpot',
-      rewardLabel: reward,
-      isJackpot: true,
-    }
-  }
-
+  // Covers three different symbols and any symbol id without a reward mapping.
   return {
-    outcome: 'non-triple',
-    rewardLabel: formatSymbolRow([symbolId, symbolId, symbolId]),
+    outcome: 'miss',
+    rewardLabel: pickMissAction(missActions, rngValue),
     isJackpot: false,
   }
 }
 
 export function resolveOutcomeLabel(outcome: SpinOutcome, isJackpot: boolean): string {
   if (isJackpot || outcome === 'jackpot') {
-    return 'JACKPOT!'
+    return JACKPOT_HEADLINE
   }
-  return NON_TRIPLE_HEADLINE
+  return outcome === 'pair' ? PAIR_HEADLINE : MISS_HEADLINE
+}
+
+export function buildResultAnnouncement(
+  outcome: SpinOutcome,
+  isJackpot: boolean,
+  rewardLabel: string,
+  symbolRow = '',
+): string {
+  const parts = [resolveOutcomeLabel(outcome, isJackpot)]
+
+  for (const part of [rewardLabel, symbolRow]) {
+    const trimmed = part.trim()
+    if (trimmed.length > 0) {
+      parts.push(trimmed)
+    }
+  }
+
+  return parts.join(' — ')
 }
 
 export type RandomSource = () => number

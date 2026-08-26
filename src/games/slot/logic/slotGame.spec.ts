@@ -8,7 +8,7 @@ import {
   createInitialState,
   resolveReelVisualStatus,
 } from './slotGame'
-import { NON_TRIPLE_HEADLINE } from '../rewards'
+import { JACKPOT_HEADLINE, MISS_HEADLINE, PAIR_HEADLINE } from '../rewards'
 
 describe('slotGame', () => {
   it('creates idle initial state', () => {
@@ -52,17 +52,47 @@ describe('slotGame', () => {
     expect(resolveReelVisualStatus('result', false, true)).toBe('stopped')
   })
 
-  it('builds reel labels and full non-triple status announcements', () => {
+  it('builds reel labels', () => {
     expect(buildReelAriaLabel(0, '🍺', 'idle')).toContain('sẵn sàng')
     expect(buildReelAriaLabel(0, '🍺', 'idle')).not.toContain('đang quay')
     expect(buildReelAriaLabel(1, '💀', 'spinning')).toContain('đang quay')
     expect(buildReelAriaLabel(2, '🎲', 'stopped')).toContain('đã dừng')
-    expect(buildStatusAriaLabel('spinning', null, false)).toContain('Đang quay')
-    expect(buildStatusAriaLabel('result', 'Uống 3 ngụm', true)).toContain('Jackpot')
-    expect(buildStatusAriaLabel('result', '🍺 💀 🍀', false)).toBe(
-      `${NON_TRIPLE_HEADLINE} — 🍺 💀 🍀`,
-    )
-    expect(buildStatusAriaLabel('result', '', false)).toBe(NON_TRIPLE_HEADLINE)
-    expect(buildStatusAriaLabel('result', null, false)).toBe(NON_TRIPLE_HEADLINE)
+  })
+
+  it('announces every tier with its reward and the row that produced it', () => {
+    const empty = { outcome: null, rewardLabel: null, isJackpot: false, symbols: null }
+
+    expect(buildStatusAriaLabel('spinning', empty)).toContain('Đang quay')
+    expect(buildStatusAriaLabel('idle', empty)).toContain('Sẵn sàng')
+
+    expect(
+      buildStatusAriaLabel('result', {
+        outcome: 'jackpot',
+        rewardLabel: 'Uống 3 ngụm',
+        isJackpot: true,
+        symbols: ['beer', 'beer', 'beer'],
+      }),
+    ).toBe(`${JACKPOT_HEADLINE} — Uống 3 ngụm — 🍺 🍺 🍺`)
+
+    expect(
+      buildStatusAriaLabel('result', {
+        outcome: 'pair',
+        rewardLabel: 'Uống 1 ngụm',
+        isJackpot: false,
+        symbols: ['beer', 'beer', 'skull'],
+      }),
+    ).toBe(`${PAIR_HEADLINE} — Uống 1 ngụm — 🍺 🍺 💀`)
+
+    expect(
+      buildStatusAriaLabel('result', {
+        outcome: 'miss',
+        rewardLabel: 'Chuyền cần cho người bên phải',
+        isJackpot: false,
+        symbols: ['beer', 'skull', 'clover'],
+      }),
+    ).toBe(`${MISS_HEADLINE} — Chuyền cần cho người bên phải — 🍺 💀 🍀`)
+
+    // Nothing resolved yet must not invent a reward or a row.
+    expect(buildStatusAriaLabel('result', empty)).toBe(MISS_HEADLINE)
   })
 })

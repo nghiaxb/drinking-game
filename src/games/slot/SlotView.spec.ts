@@ -16,7 +16,7 @@ vi.mock('@/composables/useGameFeedback', () => ({
 vi.mock('./composables/useSlotGame', () => {
   const phase = { value: 'idle' as 'idle' | 'spinning' | 'result' }
   const rewardLabel = { value: null as string | null }
-  const outcome = { value: null as 'jackpot' | 'non-triple' | null }
+  const outcome = { value: null as 'jackpot' | 'pair' | 'miss' | null }
   const isJackpot = { value: false }
   const isSpinning = { value: false }
   const displaySymbols = { value: ['beer', 'skull', 'dice'] as const }
@@ -59,7 +59,7 @@ describe('SlotView', () => {
       __testControls: {
         phase: { value: 'idle' | 'spinning' | 'result' }
         rewardLabel: { value: string | null }
-        outcome: { value: 'jackpot' | 'non-triple' | null }
+        outcome: { value: 'jackpot' | 'pair' | 'miss' | null }
         isJackpot: { value: boolean }
         isSpinning: { value: boolean }
         spin: ReturnType<typeof vi.fn>
@@ -106,7 +106,7 @@ describe('SlotView', () => {
       __testControls: {
         phase: { value: 'idle' | 'spinning' | 'result' }
         rewardLabel: { value: string | null }
-        outcome: { value: 'jackpot' | 'non-triple' | null }
+        outcome: { value: 'jackpot' | 'pair' | 'miss' | null }
         isJackpot: { value: boolean }
       }
     }
@@ -137,7 +137,7 @@ describe('SlotView', () => {
       __testControls: {
         phase: { value: 'idle' | 'spinning' | 'result' }
         rewardLabel: { value: string | null }
-        outcome: { value: 'jackpot' | 'non-triple' | null }
+        outcome: { value: 'jackpot' | 'pair' | 'miss' | null }
         isJackpot: { value: boolean }
         spin: ReturnType<typeof vi.fn>
         dismissResult: ReturnType<typeof vi.fn>

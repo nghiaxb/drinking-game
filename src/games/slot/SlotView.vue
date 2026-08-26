@@ -6,7 +6,7 @@
   >
     <header class="shrink-0 text-center">
       <h1 id="slot-heading" class="font-display text-2xl font-semibold text-ink">Kéo cần</h1>
-      <p class="mt-1 text-sm text-ink-muted">Ba guồng — trúng triple để nhận thưởng!</p>
+      <p class="mt-1 text-sm text-ink-muted">Ba guồng — ăn đôi có thưởng, ăn ba là jackpot!</p>
     </header>
 
     <div class="flex flex-1 flex-col items-center justify-center gap-4 px-1">
@@ -26,11 +26,7 @@
         />
       </div>
 
-      <p
-        class="sr-only"
-        aria-live="polite"
-        data-testid="slot-status-live"
-      >
+      <p class="sr-only" aria-live="polite" data-testid="slot-status-live">
         {{ statusText }}
       </p>
 
@@ -48,8 +44,9 @@
       <SlotResult
         v-if="game.phase.value === 'result'"
         :reward-label="game.rewardLabel.value ?? ''"
-        :outcome="game.outcome.value ?? 'non-triple'"
+        :outcome="game.outcome.value ?? 'miss'"
         :is-jackpot="game.isJackpot.value"
+        :symbol-row="resultSymbolRow"
         :reduced-motion="prefersReducedMotion"
         @replay="onReplay"
       />
@@ -64,7 +61,8 @@ import { usePrefersReducedMotion } from '@/composables/usePrefersReducedMotion'
 import SlotReels from './components/SlotReels.vue'
 import SlotResult from './components/SlotResult.vue'
 import { buildStatusAriaLabel } from './logic/slotGame'
-import { buildNonTripleAnnouncement } from './rewards'
+import { buildResultAnnouncement } from './rewards'
+import { formatSymbolRow } from './symbols'
 import { useSlotGame } from './composables/useSlotGame'
 
 const feedback = useGameFeedback()
@@ -84,16 +82,25 @@ const game = useSlotGame({
   primeAudio: () => feedback.primeAudio(),
 })
 
+const resultSymbolRow = computed(() => formatSymbolRow(game.symbols.value ?? []))
+
 const statusText = computed(() =>
-  buildStatusAriaLabel(game.phase.value, game.rewardLabel.value, game.isJackpot.value),
+  buildStatusAriaLabel(game.phase.value, {
+    outcome: game.outcome.value,
+    rewardLabel: game.rewardLabel.value,
+    isJackpot: game.isJackpot.value,
+    symbols: game.symbols.value,
+  }),
 )
 
 const stageLabel = computed(() => {
   if (game.phase.value === 'result') {
-    if (game.isJackpot.value) {
-      return game.rewardLabel.value ? `Jackpot: ${game.rewardLabel.value}` : 'Jackpot'
-    }
-    return buildNonTripleAnnouncement(game.rewardLabel.value ?? '')
+    return buildResultAnnouncement(
+      game.outcome.value ?? 'miss',
+      game.isJackpot.value,
+      game.rewardLabel.value ?? '',
+      resultSymbolRow.value,
+    )
   }
   if (game.isSpinning.value) {
     return 'Guồng đang quay'

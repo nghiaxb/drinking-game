@@ -4,7 +4,8 @@ export type SlotPhase = 'idle' | 'spinning' | 'result'
 
 export type ReelVisualStatus = 'idle' | 'spinning' | 'stopped'
 
-export type SpinOutcome = 'jackpot' | 'non-triple'
+/** Three tiers: all three match, exactly two match, or none. Every pull lands on one. */
+export type SpinOutcome = 'jackpot' | 'pair' | 'miss'
 
 export interface SlotSymbol {
   id: SlotSymbolId
