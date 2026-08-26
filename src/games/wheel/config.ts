@@ -11,20 +11,36 @@ export const DEFAULT_WHEEL_ITEMS: WheelItem[] = [
   { id: 'double', label: 'Double', enabled: true },
 ]
 
-export const WHEEL_SEGMENT_COLORS = [
-  '#e94560',
-  '#0f3460',
-  '#533483',
-  '#16a085',
-  '#f39c12',
-  '#3498db',
-  '#9b59b6',
-  '#2ecc71',
-  '#e67e22',
-  '#1abc9c',
-  '#c0392b',
-  '#8e44ad',
-] as const
+/**
+ * Fill plus the text colour that is legible on it. The old palette put white on every wedge, and
+ * 7 of its 12 colours failed AA for that text — the amber wedge measured 2.19:1. Dark and light
+ * alternate so neighbouring wedges never blur into one another either.
+ */
+export interface WheelSegmentStyle {
+  fill: string
+  text: string
+}
+
+export const WHEEL_SEGMENT_STYLES: readonly WheelSegmentStyle[] = [
+  { fill: '#c8402f', text: '#ffffff' },
+  { fill: '#e9a83c', text: '#2d2420' },
+  { fill: '#16776a', text: '#ffffff' },
+  { fill: '#8ec9ae', text: '#2d2420' },
+  { fill: '#5d4497', text: '#ffffff' },
+  { fill: '#dfc255', text: '#2d2420' },
+  { fill: '#2f7ea6', text: '#ffffff' },
+  { fill: '#f0b9a4', text: '#2d2420' },
+  { fill: '#b03a5b', text: '#ffffff' },
+  { fill: '#c7d99a', text: '#2d2420' },
+  { fill: '#3f4b8c', text: '#ffffff' },
+  { fill: '#e0cfa8', text: '#2d2420' },
+]
+
+export function wheelSegmentStyleAt(index: number): WheelSegmentStyle {
+  const styles = WHEEL_SEGMENT_STYLES
+  const safe = ((index % styles.length) + styles.length) % styles.length
+  return styles[safe] ?? styles[0]!
+}
 
 export const WHEEL_CONFIG = {
   minEnabledItems: 2,
