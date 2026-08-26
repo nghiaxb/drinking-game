@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import CardsView from './CardsView.vue'
+import { TRUTH_CARDS } from './data'
 
 const primeAudio = vi.fn()
 
@@ -87,7 +88,10 @@ describe('CardsView', () => {
     await wrapper.get('[data-testid="cards-reshuffle-button"]').trigger('click')
     await nextTick()
 
-    expect(wrapper.get('[data-testid="cards-counter"]').text()).toMatch(/Còn 40\/40 lá/)
+    const total = TRUTH_CARDS.length
+    expect(wrapper.get('[data-testid="cards-counter"]').text()).toContain(
+      `Còn ${total}/${total} lá`,
+    )
   })
 
   it('does not prime audio for deck change or reshuffle', async () => {

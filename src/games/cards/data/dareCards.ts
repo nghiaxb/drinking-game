@@ -201,4 +201,54 @@ export const DARE_CARDS: DareCard[] = [
     deck: 'dare',
     text: 'Hát một câu rap tự chế về buổi tối nay.',
   },
+  {
+    id: 'dare-41',
+    deck: 'dare',
+    text: 'Nói 30 giây về chủ đề người bên cạnh chọn, không dừng.',
+  },
+  {
+    id: 'dare-42',
+    deck: 'dare',
+    text: 'Cả bàn hỏi bạn 3 câu, bạn chỉ được trả lời có.',
+  },
+  {
+    id: 'dare-43',
+    deck: 'dare',
+    text: 'Diễn tả bộ phim yêu thích chỉ bằng động tác — cả bàn đoán.',
+  },
+  {
+    id: 'dare-44',
+    deck: 'dare',
+    text: 'Đóng vai bạn mười năm sau, giới thiệu bản thân 15 giây.',
+  },
+  {
+    id: 'dare-45',
+    deck: 'dare',
+    text: 'Bắt chước tiếng 3 con vật, cả bàn phải đoán đúng.',
+  },
+  {
+    id: 'dare-46',
+    deck: 'dare',
+    text: 'Đứng lên chào cả bàn như vừa nhận giải thưởng lớn.',
+  },
+  {
+    id: 'dare-47',
+    deck: 'dare',
+    text: 'Đổi chỗ với người đối diện và giả làm họ một lượt.',
+  },
+  {
+    id: 'dare-48',
+    deck: 'dare',
+    text: 'Đọc tên món trên bàn bằng giọng bình luận bóng đá.',
+  },
+  {
+    id: 'dare-49',
+    deck: 'dare',
+    text: 'Nói tên từng người ở bàn kèm một từ mô tả họ.',
+  },
+  {
+    id: 'dare-50',
+    deck: 'dare',
+    text: 'Beatbox 5 giây, cả bàn vỗ tay theo nhịp.',
+  },
 ]

@@ -86,6 +86,30 @@ export const TRUTH_CARDS: TruthCard[] = [
     text: 'Điều bạn thích nhất ở buổi tối nay?',
   },
   {
+    id: 'truth-light-15',
+    deck: 'truth',
+    difficulty: 'light',
+    text: 'Nếu điện thoại bạn biết nói, nó sẽ tố bạn điều gì?',
+  },
+  {
+    id: 'truth-light-16',
+    deck: 'truth',
+    difficulty: 'light',
+    text: 'Lần cuối bạn hát to trong nhà tắm là bài gì?',
+  },
+  {
+    id: 'truth-light-17',
+    deck: 'truth',
+    difficulty: 'light',
+    text: 'Món bạn nấu tệ nhất từng làm là gì?',
+  },
+  {
+    id: 'truth-light-18',
+    deck: 'truth',
+    difficulty: 'light',
+    text: 'Ứng dụng bạn mở nhiều nhất hôm nay là gì?',
+  },
+  {
     id: 'truth-medium-01',
     deck: 'truth',
     difficulty: 'medium',
@@ -170,6 +194,30 @@ export const TRUTH_CARDS: TruthCard[] = [
     text: 'Bạn từng làm điều gì vì cái ego?',
   },
   {
+    id: 'truth-medium-15',
+    deck: 'truth',
+    difficulty: 'medium',
+    text: 'Tin nhắn cuối bạn xoá trước khi gửi là gì?',
+  },
+  {
+    id: 'truth-medium-16',
+    deck: 'truth',
+    difficulty: 'medium',
+    text: 'Bạn từng giả vờ bận để trốn ai ở bàn này?',
+  },
+  {
+    id: 'truth-medium-17',
+    deck: 'truth',
+    difficulty: 'medium',
+    text: 'Điều gì ở bạn mà mọi người hiểu sai nhất?',
+  },
+  {
+    id: 'truth-medium-18',
+    deck: 'truth',
+    difficulty: 'medium',
+    text: 'Lời khen nào bạn nhận được mà chính bạn không tin?',
+  },
+  {
     id: 'truth-spicy-01',
     deck: 'truth',
     difficulty: 'spicy',
@@ -240,5 +288,29 @@ export const TRUTH_CARDS: TruthCard[] = [
     deck: 'truth',
     difficulty: 'spicy',
     text: 'Điều gì khiến bạn đỏ mặt ngay lập tức?',
+  },
+  {
+    id: 'truth-spicy-13',
+    deck: 'truth',
+    difficulty: 'spicy',
+    text: 'Ai ở bàn này bạn sẽ nhắn tin lúc 2 giờ sáng?',
+  },
+  {
+    id: 'truth-spicy-14',
+    deck: 'truth',
+    difficulty: 'spicy',
+    text: 'Nếu phải bỏ một người khỏi nhóm chat, bạn bỏ ai?',
+  },
+  {
+    id: 'truth-spicy-15',
+    deck: 'truth',
+    difficulty: 'spicy',
+    text: 'Điều bạn nói dối trong buổi tối nay là gì?',
+  },
+  {
+    id: 'truth-spicy-16',
+    deck: 'truth',
+    difficulty: 'spicy',
+    text: 'Ai ở đây bạn từng nói sau lưng một câu không hay?',
   },
 ]

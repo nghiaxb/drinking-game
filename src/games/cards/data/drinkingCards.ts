@@ -62,6 +62,24 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     text: 'Uống 2 ngụm nếu bạn từng mất đồ khi đi nhậu.',
   },
   {
+    id: 'drink-drink-11',
+    deck: 'drinking',
+    category: 'drink',
+    text: 'Uống 1 ngụm cho mỗi người ở bàn bạn chưa biết tên.',
+  },
+  {
+    id: 'drink-drink-12',
+    deck: 'drinking',
+    category: 'drink',
+    text: 'Kể một bí mật nhỏ, hoặc uống 3 ngụm. Chọn đi.',
+  },
+  {
+    id: 'drink-drink-13',
+    deck: 'drinking',
+    category: 'drink',
+    text: 'Uống 1 ngụm nếu điện thoại bạn còn dưới 30% pin.',
+  },
+  {
     id: 'drink-choose-01',
     deck: 'drinking',
     category: 'choose',
@@ -120,6 +138,24 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     deck: 'drinking',
     category: 'choose',
     text: 'Chọn người bạn thân nhất ở bàn uống 1 ngụm.',
+  },
+  {
+    id: 'drink-choose-11',
+    deck: 'drinking',
+    category: 'choose',
+    text: 'Chọn một vệ sĩ: họ uống thay bạn trong 2 lá tới.',
+  },
+  {
+    id: 'drink-choose-12',
+    deck: 'drinking',
+    category: 'choose',
+    text: 'Chọn một người: mỗi lần bạn uống, họ uống nửa ngụm.',
+  },
+  {
+    id: 'drink-choose-13',
+    deck: 'drinking',
+    category: 'choose',
+    text: 'Chọn người bạn nghĩ sẽ say đầu tiên. Họ uống 2 ngụm.',
   },
   {
     id: 'drink-everyone-01',
@@ -182,6 +218,24 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     text: 'Cả bàn uống 1 ngụm trước khi bốc lá tiếp.',
   },
   {
+    id: 'drink-everyone-11',
+    deck: 'drinking',
+    category: 'everyone',
+    text: 'Cả bàn chỉ người nói nhiều nhất tối nay. Người đó uống 2 ngụm.',
+  },
+  {
+    id: 'drink-everyone-12',
+    deck: 'drinking',
+    category: 'everyone',
+    text: 'Cả bàn im lặng 30 giây. Ai lên tiếng đầu tiên uống 2 ngụm.',
+  },
+  {
+    id: 'drink-everyone-13',
+    deck: 'drinking',
+    category: 'everyone',
+    text: 'Cả bàn kể một điều chưa ai biết về mình. Ai bỏ qua uống 2 ngụm.',
+  },
+  {
     id: 'drink-lucky-01',
     deck: 'drinking',
     category: 'lucky',
@@ -240,6 +294,24 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     deck: 'drinking',
     category: 'lucky',
     text: 'Ai không đeo kính uống 1 ngụm.',
+  },
+  {
+    id: 'drink-lucky-11',
+    deck: 'drinking',
+    category: 'lucky',
+    text: 'Người cuối cùng chạm vào mũi mình uống 2 ngụm. Bắt đầu!',
+  },
+  {
+    id: 'drink-lucky-12',
+    deck: 'drinking',
+    category: 'lucky',
+    text: 'Ai có pin điện thoại thấp nhất bàn uống 2 ngụm.',
+  },
+  {
+    id: 'drink-lucky-13',
+    deck: 'drinking',
+    category: 'lucky',
+    text: 'Ai có sinh nhật gần hôm nay nhất được ra một luật nhỏ.',
   },
   {
     id: 'drink-skill-01',
@@ -302,6 +374,24 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     text: 'Đoán số ngón tay người khác giơ — sai uống 2 ngụm.',
   },
   {
+    id: 'drink-skill-11',
+    deck: 'drinking',
+    category: 'skill',
+    text: 'Đếm 1 đến 20 nhưng bỏ mọi số có chữ 3 — sai uống 2 ngụm.',
+  },
+  {
+    id: 'drink-skill-12',
+    deck: 'drinking',
+    category: 'skill',
+    text: 'Nói một câu không chứa chữ a — sai uống 1 ngụm.',
+  },
+  {
+    id: 'drink-skill-13',
+    deck: 'drinking',
+    category: 'skill',
+    text: 'Giữ mặt tỉnh 15 giây khi cả bàn làm bạn cười — thua uống 2 ngụm.',
+  },
+  {
     id: 'drink-rule-01',
     deck: 'drinking',
     category: 'rule',
@@ -360,5 +450,23 @@ export const DRINKING_CARDS: DrinkingCard[] = [
     deck: 'drinking',
     category: 'rule',
     text: 'Luật mới: Ai nói tên game khác uống 1 ngụm.',
+  },
+  {
+    id: 'drink-rule-11',
+    deck: 'drinking',
+    category: 'rule',
+    text: 'Luật mới: Bạn là trọng tài, được bắt lỗi và cho uống 1 ngụm.',
+  },
+  {
+    id: 'drink-rule-12',
+    deck: 'drinking',
+    category: 'rule',
+    text: 'Luật mới: Bạn tự đổi tên. Ai gọi sai tên uống 1 ngụm.',
+  },
+  {
+    id: 'drink-rule-13',
+    deck: 'drinking',
+    category: 'rule',
+    text: 'Luật mới: Cấm nói không. Ai vi phạm uống 1 ngụm.',
   },
 ]

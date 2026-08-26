@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
 import { CARDS_CONFIG } from '../config'
-import { ALL_CARDS } from '../data'
+import { ALL_CARDS, DRINKING_CARDS } from '../data'
 import { createCardsGame } from './useCardsGame'
 
 function createGame(overrides: Partial<Parameters<typeof createCardsGame>[0]> = {}) {
@@ -130,8 +130,8 @@ describe('useCardsGame', () => {
     game.setDeck('drinking')
 
     expect(game.deckType.value).toBe('drinking')
-    expect(game.totalInPool.value).toBe(60)
-    expect(game.remaining.value).toBe(60)
+    expect(game.totalInPool.value).toBe(DRINKING_CARDS.length)
+    expect(game.remaining.value).toBe(DRINKING_CARDS.length)
     expect(game.currentCard.value).toBeNull()
   })
 
