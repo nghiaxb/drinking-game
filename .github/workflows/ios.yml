@@ -1,0 +1,158 @@
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  pull_request:
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Unsigned simulator build: proves the native project compiles without needing an Apple
+  # Developer account. macOS runners bill 10x minutes on private repos, so this stays lean.
+  simulator:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build web bundle
+        run: npm run build
+
+      # Must run on macOS: cap sync rewrites CapApp-SPM/Package.swift, and the committed copy
+      # was generated on Windows with backslash paths that Swift Package Manager cannot resolve.
+      - name: Copy the bundle and regenerate the SPM manifest
+        run: npx cap sync ios
+
+      - name: Show available schemes
+        working-directory: ios/App
+        run: xcodebuild -project App.xcodeproj -list
+
+      - name: Build for simulator
+        working-directory: ios/App
+        run: |
+          xcodebuild build \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+  # Signed .ipa for TestFlight. Needs a paid Apple Developer Program membership; without the
+  # secrets below the job is skipped rather than failing the run.
+  archive:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: macos-15
+    needs: simulator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for signing secrets
+        id: secrets
+        env:
+          CERT: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+        run: |
+          if [ -n "$CERT" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::IOS_CERTIFICATE_BASE64 not set — skipping the signed archive."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.present == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - if: steps.secrets.outputs.present == 'true'
+        run: npm ci
+
+      - if: steps.secrets.outputs.present == 'true'
+        run: npm run build
+
+      - if: steps.secrets.outputs.present == 'true'
+        run: npx cap sync ios
+
+      - name: Install signing certificate and profile
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          CERT_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          # A throwaway keychain, unlocked only for this job.
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 900 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+          echo "$CERT_BASE64" | base64 -d > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+
+          PROFILES="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES"
+          echo "$PROFILE_BASE64" | base64 -d > "$PROFILES/build.mobileprovision"
+
+      - name: Archive
+        if: steps.secrets.outputs.present == 'true'
+        working-directory: ios/App
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          xcodebuild archive \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="$TEAM_ID"
+
+      - name: Export .ipa
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.secrets.outputs.present == 'true'
+        with:
+          name: app-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: error
