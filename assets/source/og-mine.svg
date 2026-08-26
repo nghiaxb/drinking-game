@@ -1,13 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Mine">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Bat ech">
   <rect width="1200" height="630" fill="#b45309"/>
-  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Mine</text>
+  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Bat ech</text>
   <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#ffedd5">Mini game - Drinking Games</text>
-  <g fill="#ffffff" opacity="0.9">
-    <rect x="860" y="250" width="72" height="72" rx="12"/>
-    <rect x="948" y="250" width="72" height="72" rx="12"/>
-    <rect x="1036" y="250" width="72" height="72" rx="12"/>
-    <rect x="860" y="338" width="72" height="72" rx="12"/>
-    <rect x="948" y="338" width="72" height="72" rx="12" fill="#ef4444"/>
-    <rect x="1036" y="338" width="72" height="72" rx="12"/>
+  <g transform="translate(860 250) scale(5.2)">
+    <path fill="#74b04a" stroke="#2f5c22" stroke-width="1.6" d="M24 9c11.2 0 19 6.6 19 17.2C43 36.6 35.4 42 24 42S5 36.6 5 26.2C5 15.6 12.8 9 24 9Z"/>
+    <circle fill="#ffffff" stroke="#2f5c22" stroke-width="1.5" cx="16.4" cy="19.4" r="7.6"/>
+    <circle fill="#ffffff" stroke="#2f5c22" stroke-width="1.5" cx="31.6" cy="19.4" r="7.6"/>
+    <circle fill="#1c2416" cx="16.4" cy="19.8" r="3.9"/>
+    <circle fill="#1c2416" cx="31.6" cy="19.8" r="3.9"/>
+    <circle fill="#ffffff" cx="14.9" cy="18.1" r="1.25"/>
+    <circle fill="#ffffff" cx="30.1" cy="18.1" r="1.25"/>
+    <path fill="#74b04a" stroke="#2f5c22" stroke-width="1.5" d="M9.6 16.2a7.6 7.6 0 0 1 13.6 0Z"/>
+    <path fill="#74b04a" stroke="#2f5c22" stroke-width="1.5" d="M24.8 16.2a7.6 7.6 0 0 1 13.6 0Z"/>
+    <g fill="none" stroke="#6fc7ea" stroke-width="2.6" stroke-linecap="round">
+      <path d="M13.4 26.6q-1.6 3.6 0 7.2t0 6.6"/>
+      <path d="M19.2 26.9q-1.6 3.3 0 6.6t0 6"/>
+      <path d="M28.8 26.9q1.6 3.3 0 6.6t0 6"/>
+      <path d="M34.6 26.6q1.6 3.6 0 7.2t0 6.6"/>
+    </g>
+    <rect fill="#b5673c" stroke="#2f5c22" stroke-width="1.5" x="8.5" y="30.4" width="31" height="5.6" rx="2.8"/>
+    <path fill="none" stroke="#7d4426" stroke-width="1.6" stroke-linecap="round" d="M15 34.6q9 3.4 18 0"/>
   </g>
 </svg>

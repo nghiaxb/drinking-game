@@ -1,5 +1,11 @@
 import { test, expect, type Page } from '@playwright/test'
-import { attachConsoleGuard, clearAppStorage, dismissPwaBanners, emulateReducedMotion, playUntilVisible } from './helpers'
+import {
+  attachConsoleGuard,
+  clearAppStorage,
+  dismissPwaBanners,
+  emulateReducedMotion,
+  playUntilVisible,
+} from './helpers'
 
 test.beforeEach(async ({ page }) => {
   await clearAppStorage(page)
@@ -53,7 +59,7 @@ test('mine: click cells until result then replay', async ({ page }) => {
     'mine-result',
   )
 
-  await expect(page.getByTestId('mine-result')).toContainText('TRÚNG MÌN')
+  await expect(page.getByTestId('mine-result')).toContainText('ẾCH KHÓC')
   await page.getByTestId('mine-replay').click()
   await expect(page.getByTestId('mine-result')).not.toBeVisible()
   await expect(page.getByTestId('mine-grid')).toBeVisible()

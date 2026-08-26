@@ -34,7 +34,7 @@ const APP_SEO = {
   home: {
     title: 'Drinking Games — Trò chơi nhậu offline',
     description:
-      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Mìn, Vòng quay, Kéo cần và Bốc bài. Chơi ngay trên web hoặc cài PWA.',
+      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay, Kéo cần và Bốc bài. Chơi ngay trên web hoặc cài PWA.',
     ogTitle: 'Drinking Games — Chơi offline mọi lúc',
     ogDescription:
       'Năm trò chơi nhậu vui nhộn, tối ưu mobile, cài đặt như app và chơi offline sau lần tải đầu.',
@@ -43,17 +43,19 @@ const APP_SEO = {
   },
   crocodile: {
     title: 'Răng cá sấu — Drinking Games',
-    description: 'Mini game Răng cá sấu: chọn răng an toàn, tránh cá sấu cắn và uống theo luật nhóm.',
+    description:
+      'Mini game Răng cá sấu: chọn răng an toàn, tránh cá sấu cắn và uống theo luật nhóm.',
     ogTitle: 'Răng cá sấu — Mini game nhậu',
     ogDescription: 'Thử vận may với hàm cá sấu. Chạm đúng răng bẫy sẽ phải uống!',
     ogImage: '/og/og-crocodile.png',
     jsonLdType: 'VideoGame' as const,
   },
   mine: {
-    title: 'Mìn — Drinking Games',
-    description: 'Mini game Mìn: mở ô an toàn trên lưới 5x5, tránh mìn và uống khi dính bom.',
-    ogTitle: 'Mìn — Mini game nhậu',
-    ogDescription: 'Lật ô cẩn thận — chạm mìn là uống ngay.',
+    title: 'Bắt ếch — Drinking Games',
+    description:
+      'Mini game Bắt ếch: bắt ếch an toàn trên lưới 5x5, tránh ếch phạt và uống khi trúng.',
+    ogTitle: 'Bắt ếch — Mini game nhậu',
+    ogDescription: 'Bắt ếch cẩn thận — gặp ếch khóc là uống ngay.',
     ogImage: '/og/og-mine.png',
     jsonLdType: 'VideoGame' as const,
   },

@@ -18,7 +18,12 @@ vi.mock('./composables/useMineGame', () => {
   const mineIndices = { value: [12] as number[] }
   const hitMineIndex = { value: null as number | null }
   const isTerminal = { value: false }
+  const mineCount = { value: 1 }
+  const safeRevealedCount = { value: 0 }
+  const safeTotalCount = { value: 24 }
+  const nextRisk = { value: 1 / 25 }
   const reset = vi.fn()
+  const setMineCount = vi.fn()
   const pressCell = vi.fn().mockResolvedValue(undefined)
   const primeAudio = vi.fn()
 
@@ -29,11 +34,14 @@ vi.mock('./composables/useMineGame', () => {
       mineIndices,
       hitMineIndex,
       gridSize: { value: 5 },
-      mineCount: { value: 1 },
+      mineCount,
+      safeRevealedCount,
+      safeTotalCount,
+      nextRisk,
       isTerminal,
-      isCellDisabled: (index: number) =>
-        isTerminal.value || revealedIndices.value.includes(index),
+      isCellDisabled: (index: number) => isTerminal.value || revealedIndices.value.includes(index),
       pressCell,
+      setMineCount,
       reset,
       primeAudio,
     }),
@@ -42,8 +50,13 @@ vi.mock('./composables/useMineGame', () => {
       revealedIndices,
       mineIndices,
       hitMineIndex,
+      mineCount,
+      safeRevealedCount,
+      safeTotalCount,
+      nextRisk,
       isTerminal,
       reset,
+      setMineCount,
       pressCell,
       primeAudio,
     },
@@ -114,9 +127,9 @@ describe('MineView', () => {
 
     const wrapper = mount(MineView)
 
-    expect(wrapper.get('[data-testid="mine-result"]').text()).toContain('TRÚNG MÌN')
+    expect(wrapper.get('[data-testid="mine-result"]').text()).toContain('ẾCH KHÓC')
     expect(wrapper.get('[data-testid="mine-result"]').text()).toContain('UỐNG')
-    expect(wrapper.get('[data-testid="mine-status-live"]').text()).toContain('Trúng mìn')
+    expect(wrapper.get('[data-testid="mine-status-live"]').text()).toContain('Trúng ếch khóc')
 
     for (const cell of wrapper.findAll('button[data-testid^="mine-cell-"]')) {
       expect((cell.element as HTMLButtonElement).disabled).toBe(true)

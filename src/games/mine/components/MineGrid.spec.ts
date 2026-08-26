@@ -17,7 +17,7 @@ describe('MineGrid', () => {
 
     const group = wrapper.get('[data-testid="mine-grid"]')
     expect(group.attributes('role')).toBe('group')
-    expect(group.attributes('aria-label')).toContain('Lưới mìn')
+    expect(group.attributes('aria-label')).toContain('Lưới ếch')
     expect(wrapper.findAll('button[data-testid^="mine-cell-"]')).toHaveLength(25)
     expect(wrapper.get('[data-testid="mine-cell-0"]').attributes('role')).toBeUndefined()
   })
@@ -25,8 +25,9 @@ describe('MineGrid', () => {
   it('does not expose mine markers in the DOM before explosion', () => {
     const wrapper = mount(MineGrid, { props: defaultProps })
 
-    expect(wrapper.text()).not.toContain('💣')
-    expect(wrapper.get('[data-testid="mine-cell-12"]').text()).toBe('')
+    // Only the idle frog exists while playing, so the penalty cell looks like every other one.
+    expect(wrapper.findAll('.frog--crying')).toHaveLength(0)
+    expect(wrapper.findAll('.frog--idle')).toHaveLength(25)
   })
 
   it('shows safe state for revealed non-mine cells', () => {
@@ -40,7 +41,9 @@ describe('MineGrid', () => {
 
     const cell = wrapper.get('[data-testid="mine-cell-0"]')
     expect(cell.classes()).toContain('mine-cell--safe')
-    expect(cell.text()).toContain('✓')
+    // A caught frog is gone from the board entirely.
+    expect(cell.find('.frog').exists()).toBe(false)
+    expect(wrapper.findAll('.frog--idle')).toHaveLength(24)
     expect((cell.element as HTMLButtonElement).disabled).toBe(true)
   })
 
@@ -58,7 +61,7 @@ describe('MineGrid', () => {
     const hitCell = wrapper.get('[data-testid="mine-cell-12"]')
     expect(hitCell.classes()).toContain('mine-cell--mine')
     expect(hitCell.classes()).toContain('mine-cell--exploded')
-    expect(hitCell.text()).toContain('💣')
+    expect(hitCell.find('.frog--crying').exists()).toBe(true)
   })
 
   it('uses tactile layout classes for 320px fit with 8px gaps and 44px cells', () => {
@@ -70,18 +73,23 @@ describe('MineGrid', () => {
     expect(wrapper.html()).toContain('--mine-cell-min')
   })
 
-  it('keeps explosion peak scale within horizontal padding budget at 320px', () => {
-    const gridMaxPx = 320
+  it('keeps explosion peak and blast ring inside the tray padding at 320px', () => {
+    const viewportPx = 320
+    const sectionPaddingPx = 4
+    const trayPaddingPx = 9.6
     const gapPx = 8
     const cols = 5
-    const stagePaddingPx = 4
     const explosionPeakScale = 1.12
+    const blastRingInsetPx = 5.6
 
-    const cellPx = (gridMaxPx - (cols - 1) * gapPx) / cols
+    const gridPx = viewportPx - sectionPaddingPx * 2 - trayPaddingPx * 2
+    const cellPx = (gridPx - (cols - 1) * gapPx) / cols
     const peakOverflowPx = (cellPx * explosionPeakScale - cellPx) / 2
 
     expect(cellPx).toBeGreaterThanOrEqual(44)
-    expect(peakOverflowPx).toBeLessThanOrEqual(stagePaddingPx)
+    // The tray padding is what absorbs both, so neither can push the grid past the viewport.
+    expect(peakOverflowPx).toBeLessThanOrEqual(trayPaddingPx)
+    expect(blastRingInsetPx).toBeLessThanOrEqual(trayPaddingPx)
   })
 
   it('provides descriptive aria labels for cells', () => {

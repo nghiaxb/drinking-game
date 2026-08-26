@@ -19,8 +19,8 @@ export const HOME_GAME_CARDS: HomeGameCard[] = [
   },
   {
     id: 'mine',
-    label: 'Mìn',
-    emoji: '💣',
+    label: 'Bắt ếch',
+    emoji: '🐸',
     path: GAME_ROUTE_PATHS.mine,
     accent: 'coral',
   },
