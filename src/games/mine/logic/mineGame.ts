@@ -97,6 +97,24 @@ export function isCellDisabled(state: MineGameState, cellIndex: number): boolean
   return state.revealedIndices.includes(cellIndex)
 }
 
+/**
+ * Chance the next press hits a mine, as 0..1. This is what makes the game tense — it climbs from
+ * 1/25 to a certainty as tiles run out — so the view shows it rather than leaving players guessing.
+ */
+export function computeNextRisk(state: MineGameState): number {
+  const cellCount = normalizeGridSize(state.gridSize) ** 2
+  const unopened = cellCount - state.revealedIndices.length
+
+  if (unopened <= 0) {
+    return 0
+  }
+
+  const revealed = new Set(state.revealedIndices)
+  const minesLeft = state.mineIndices.filter((index) => !revealed.has(index)).length
+
+  return Math.min(1, minesLeft / unopened)
+}
+
 export function pressCell(state: MineGameState, cellIndex: number): PressCellResult {
   if (!isValidCellIndex(cellIndex, state.gridSize)) {
     return { state, outcome: 'ignored' }

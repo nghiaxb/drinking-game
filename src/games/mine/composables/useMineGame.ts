@@ -1,6 +1,8 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import { MINE_CONFIG } from '../config'
 import {
+  clampMineCount,
+  computeNextRisk,
   createInitialState,
   isCellDisabled as checkCellDisabled,
   isTerminal as checkTerminal,
@@ -30,9 +32,13 @@ export interface MineGameController {
   hitMineIndex: Ref<number | null>
   gridSize: Ref<number>
   mineCount: Ref<number>
+  safeRevealedCount: ComputedRef<number>
+  safeTotalCount: ComputedRef<number>
+  nextRisk: ComputedRef<number>
   isTerminal: ComputedRef<boolean>
   isCellDisabled: (index: number) => boolean
   pressCell: (index: number) => Promise<void>
+  setMineCount: (count: number) => void
   reset: () => void
   primeAudio: () => void
 }
@@ -45,6 +51,8 @@ export function createMineGame(options: MineGameOptions): MineGameController {
   const rng = options.rng ?? defaultRng
   const state = ref<MineGameState>(createInitialState(rng))
   let pressChain: Promise<void> = Promise.resolve()
+  // Kept outside the round so replaying kicks off a new board at the count the player picked.
+  const chosenMineCount = ref(clampMineCount(MINE_CONFIG.mineCount, MINE_CONFIG.gridSize))
 
   const phase = computed(() => state.value.phase)
   const revealedIndices = computed(() => state.value.revealedIndices)
@@ -53,6 +61,14 @@ export function createMineGame(options: MineGameOptions): MineGameController {
   const gridSize = computed(() => state.value.gridSize)
   const mineCount = computed(() => state.value.mineCount)
   const isTerminal = computed(() => checkTerminal(state.value))
+  const safeTotalCount = computed(
+    () => state.value.gridSize * state.value.gridSize - state.value.mineCount,
+  )
+  const safeRevealedCount = computed(() => {
+    const mines = new Set(state.value.mineIndices)
+    return state.value.revealedIndices.filter((index) => !mines.has(index)).length
+  })
+  const nextRisk = computed(() => computeNextRisk(state.value))
 
   function isCellDisabled(index: number): boolean {
     return checkCellDisabled(state.value, index)
@@ -88,7 +104,16 @@ export function createMineGame(options: MineGameOptions): MineGameController {
   }
 
   function reset(): void {
-    state.value = resetGame(rng, MINE_CONFIG.gridSize, MINE_CONFIG.mineCount)
+    state.value = resetGame(rng, MINE_CONFIG.gridSize, chosenMineCount.value)
+  }
+
+  function setMineCount(count: number): void {
+    const next = clampMineCount(count, MINE_CONFIG.gridSize)
+    if (next === chosenMineCount.value) {
+      return
+    }
+    chosenMineCount.value = next
+    reset()
   }
 
   function primeAudio(): void {
@@ -102,9 +127,13 @@ export function createMineGame(options: MineGameOptions): MineGameController {
     hitMineIndex,
     gridSize,
     mineCount,
+    safeRevealedCount,
+    safeTotalCount,
+    nextRisk,
     isTerminal,
     isCellDisabled,
     pressCell: handlePress,
+    setMineCount,
     reset,
     primeAudio,
   }

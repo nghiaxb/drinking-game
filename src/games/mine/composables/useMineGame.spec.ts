@@ -126,4 +126,42 @@ describe('useMineGame', () => {
     expect(game.revealedIndices.value).toContain(mineIndex)
     expect(game.revealedIndices.value).not.toContain(safeIndex)
   })
+
+  it('changes the mine count and keeps it across replays', () => {
+    const game = createMineGame({ rng: nextRng, feedback: createFeedback() })
+
+    expect(game.mineCount.value).toBe(1)
+
+    game.setMineCount(3)
+    expect(game.mineCount.value).toBe(3)
+    expect(game.mineIndices.value).toHaveLength(3)
+    expect(game.safeTotalCount.value).toBe(22)
+
+    // Replay must not silently fall back to the configured default.
+    game.reset()
+    expect(game.mineCount.value).toBe(3)
+    expect(game.mineIndices.value).toHaveLength(3)
+  })
+
+  it('clamps an out-of-range mine count instead of building an impossible board', () => {
+    const game = createMineGame({ rng: nextRng, feedback: createFeedback() })
+
+    game.setMineCount(99)
+    expect(game.mineCount.value).toBe(3)
+
+    game.setMineCount(0)
+    expect(game.mineCount.value).toBe(1)
+  })
+
+  it('reports the risk of the next press and its rise as cells are cleared', async () => {
+    const game = createMineGame({ rng: nextRng, feedback: createFeedback() })
+
+    expect(game.nextRisk.value).toBeCloseTo(1 / 25)
+
+    const safe = [...Array(25).keys()].find((index) => !game.mineIndices.value.includes(index))!
+    await game.pressCell(safe)
+
+    expect(game.safeRevealedCount.value).toBe(1)
+    expect(game.nextRisk.value).toBeCloseTo(1 / 24)
+  })
 })

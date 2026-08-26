@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { MINE_CONFIG } from '../config'
 import {
   clampMineCount,
+  computeNextRisk,
   createInitialState,
   generateMineIndices,
   isCellDisabled,
@@ -225,6 +226,37 @@ describe('mineGame', () => {
       for (let index = 0; index < 25; index += 1) {
         expect(isCellDisabled(exploded, index)).toBe(true)
       }
+    })
+  })
+
+  describe('computeNextRisk', () => {
+    const board = (revealed: number[], mines: number[]) => ({
+      phase: 'playing' as const,
+      gridSize: 5,
+      mineCount: mines.length,
+      mineIndices: mines,
+      revealedIndices: revealed,
+      hitMineIndex: null,
+    })
+
+    it('starts at mines over cells and climbs as tiles are cleared', () => {
+      expect(computeNextRisk(board([], [7]))).toBeCloseTo(1 / 25)
+      expect(computeNextRisk(board([0, 1, 2, 3, 4], [7]))).toBeCloseTo(1 / 20)
+      expect(computeNextRisk(board([0, 1, 2], [7, 9, 11]))).toBeCloseTo(3 / 22)
+    })
+
+    it('reaches certainty when only mines are left', () => {
+      const cleared = Array.from({ length: 25 }, (_, index) => index).filter((i) => i !== 7)
+      expect(computeNextRisk(board(cleared, [7]))).toBe(1)
+    })
+
+    it('stops counting a mine once it has been revealed', () => {
+      expect(computeNextRisk(board([7], [7]))).toBe(0)
+    })
+
+    it('returns zero rather than dividing by zero on a fully revealed board', () => {
+      const all = Array.from({ length: 25 }, (_, index) => index)
+      expect(computeNextRisk(board(all, [7]))).toBe(0)
     })
   })
 })
