@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { CARDS_CONFIG, DRINKING_CATEGORY_LABELS, resolveFlipDurationMs } from '../config'
 import { DRINKING_CARDS, TRUTH_CARDS } from '../data'
-import { buildCardFrontLabel } from '../presentation'
+import { buildCardFrontLabel, resolveCardPipPath } from '../presentation'
 import CardStack from './CardStack.vue'
 
 const sampleCard = TRUTH_CARDS[0]!
@@ -173,5 +173,17 @@ describe('CardStack', () => {
       DRINKING_CATEGORY_LABELS.choose,
     )
     expect(buildCardFrontLabel(drinkingSample)).not.toContain('choose')
+  })
+
+  it('draws the tone pip as corner index and watermark on the front', () => {
+    const wrapper = mount(CardStack, {
+      props: { card: drinkingSample, isFlipped: true },
+    })
+    const paths = wrapper
+      .findAll('[data-testid="card-face-front"] .card-pip path')
+      .map((path) => path.attributes('d'))
+
+    expect(paths).toHaveLength(3)
+    expect(new Set(paths)).toEqual(new Set([resolveCardPipPath(drinkingSample)]))
   })
 })

@@ -87,7 +87,7 @@
       Trên iPhone: Chia sẻ → Thêm vào Màn hình chính
     </div>
 
-    <main class="app-content relative flex-1 py-4 pb-safe">
+    <main class="app-content relative flex flex-1 flex-col py-4 pb-safe">
       <div
         v-if="isNavigating"
         class="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 overflow-hidden bg-surface-muted"

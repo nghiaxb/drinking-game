@@ -46,7 +46,10 @@ describe('AppShell', () => {
       history: createMemoryHistory(initialPath),
       routes: [
         { path: '/', component: { template: '<p data-testid="page-home">Home</p>' } },
-        { path: '/settings', component: { template: '<p data-testid="page-settings">Settings</p>' } },
+        {
+          path: '/settings',
+          component: { template: '<p data-testid="page-settings">Settings</p>' },
+        },
         {
           path: '/games/wheel',
           component: { template: '<p data-testid="page-wheel">Wheel</p>' },
@@ -64,6 +67,19 @@ describe('AppShell', () => {
     expect(wrapper.find('[data-testid="app-shell"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="page-home"]').exists()).toBe(true)
     expect(settingsLoad).toHaveBeenCalled()
+  })
+
+  it('lays the content area out as a flex column so views can fill the viewport', async () => {
+    const router = createTestRouter()
+    const wrapper = mount(AppShell, { global: { plugins: [router] } })
+    await router.isReady()
+    await flushPromises()
+
+    // Views size themselves with flex-1 against this box; a plain block would collapse them.
+    const main = wrapper.get('main.app-content')
+    expect(main.classes()).toContain('flex')
+    expect(main.classes()).toContain('flex-col')
+    expect(main.classes()).toContain('flex-1')
   })
 
   it('shows settings control on home and back on game routes', async () => {
