@@ -19,9 +19,9 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -60,7 +60,7 @@ jobs:
     needs: simulator
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check for signing secrets
         id: secrets
@@ -74,7 +74,7 @@ jobs:
             echo "::notice::IOS_CERTIFICATE_BASE64 not set — skipping the signed archive."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: steps.secrets.outputs.present == 'true'
         with:
           node-version-file: .nvmrc
@@ -150,7 +150,7 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
             -exportPath "$RUNNER_TEMP/export"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.secrets.outputs.present == 'true'
         with:
           name: app-ipa
