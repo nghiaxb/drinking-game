@@ -1,7 +1,7 @@
 <template>
   <div class="mine-field" :class="{ 'mine-field--exploded': exploded }">
     <div
-      class="mine-grid mx-auto grid w-full max-w-[min(100%,20rem)] grid-cols-5 gap-2"
+      class="mine-grid grid w-full grid-cols-5 gap-2"
       data-testid="mine-grid"
       role="group"
       :aria-label="gridLabel"
@@ -105,10 +105,10 @@ function cellLabel(index: number): string {
 </script>
 
 <style scoped>
-/* A recessed tray, so the frogs read as sitting in a board rather than floating on the page. */
+/* A recessed tray, so the frogs read as sitting in a board rather than floating on the page.
+   It fills whatever width the stage gives it — the cap lives there, in one place. */
 .mine-field {
-  margin-inline: auto;
-  max-width: min(100%, 22rem);
+  width: 100%;
   padding: 0.6rem;
   border: 2px solid var(--color-border);
   border-radius: 1.35rem;
@@ -117,7 +117,8 @@ function cellLabel(index: number): string {
 }
 
 .mine-grid {
-  --mine-cell-min: max(2.75rem, calc((min(100vw - 2.7rem, 20rem) - 2rem) / 5));
+  /* Only the WCAG floor now: cell size comes from the grid track, so the board can go full width. */
+  --mine-cell-min: 2.75rem;
 }
 
 .mine-cell {

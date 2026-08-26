@@ -9,7 +9,7 @@
       <p class="mt-0.5 text-sm text-ink-muted">Bắt hết ếch đi — gặp ếch khóc thì uống.</p>
     </header>
 
-    <div class="flex flex-1 flex-col items-center justify-center gap-3 px-1">
+    <div class="flex flex-1 flex-col items-center justify-start gap-3">
       <div
         class="flex flex-wrap justify-center gap-2"
         role="group"
@@ -32,7 +32,7 @@
         </button>
       </div>
 
-      <div class="mine-readout w-full max-w-[min(100%,22rem)]" data-testid="mine-readout">
+      <div class="mine-readout" data-testid="mine-readout">
         <div class="flex items-baseline justify-between text-xs font-semibold text-ink-muted">
           <span>Đã bắt {{ game.safeRevealedCount.value }}/{{ game.safeTotalCount.value }} ếch</span>
           <span data-testid="mine-risk-label">{{ riskLabel }}</span>
@@ -42,12 +42,7 @@
         </div>
       </div>
 
-      <div
-        class="mine-stage w-full max-w-[min(100%,22rem)]"
-        data-testid="mine-stage"
-        role="region"
-        :aria-label="statusText"
-      >
+      <div class="mine-stage" data-testid="mine-stage" role="region" :aria-label="statusText">
         <MineGrid
           :grid-size="game.gridSize.value"
           :revealed-indices="game.revealedIndices.value"
@@ -188,6 +183,28 @@ function onReplay(): void {
 <style scoped>
 .mine-view--scroll-y {
   overflow-y: auto;
+  /* Caps the board on tablet and desktop; phones get the full-bleed treatment below instead. */
+  --mine-board-max: 27rem;
+  /* Mirrors .app-content's own padding-inline, so the breakout below cancels it exactly. */
+  --mine-gutter: max(1rem, var(--spacing-safe-left), var(--spacing-safe-right));
+}
+
+.mine-readout,
+.mine-stage {
+  width: 100%;
+  max-width: var(--mine-board-max);
+}
+
+/*
+ * On a handset the shell's page gutter costs 16px a side — a whole cell's worth of tap area across
+ * the row — so the section reclaims it. The breakout has to sit on the section itself: it carries
+ * overflow-x: hidden, which would otherwise clip anything a child pushed outside it.
+ */
+@media (width <= 30rem) {
+  .mine-view--scroll-y {
+    width: calc(100% + 2 * var(--mine-gutter) - 0.6rem);
+    margin-inline: calc(0.3rem - var(--mine-gutter));
+  }
 }
 
 .mine-chip__frog {

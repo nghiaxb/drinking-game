@@ -64,32 +64,38 @@ describe('MineGrid', () => {
     expect(hitCell.find('.frog--crying').exists()).toBe(true)
   })
 
-  it('uses tactile layout classes for 320px fit with 8px gaps and 44px cells', () => {
+  it('lets the grid fill its stage while keeping the 44px cell floor', () => {
     const wrapper = mount(MineGrid, { props: defaultProps })
 
     const grid = wrapper.get('[data-testid="mine-grid"]')
     expect(grid.classes()).toContain('gap-2')
-    expect(grid.classes()).toContain('max-w-[min(100%,20rem)]')
+    expect(grid.classes()).toContain('w-full')
+    // The width cap belongs to the view's stage, not here, so the board can run full width.
+    expect(grid.classes().some((name) => name.startsWith('max-w-'))).toBe(false)
     expect(wrapper.html()).toContain('--mine-cell-min')
   })
 
-  it('keeps explosion peak and blast ring inside the tray padding at 320px', () => {
-    const viewportPx = 320
-    const sectionPaddingPx = 4
+  it('keeps cells above 44px and the blast inside the tray padding at every board width', () => {
+    const sectionPaddingPx = 8
     const trayPaddingPx = 9.6
     const gapPx = 8
     const cols = 5
     const explosionPeakScale = 1.12
     const blastRingInsetPx = 5.6
+    const boardCapPx = 27 * 16
 
-    const gridPx = viewportPx - sectionPaddingPx * 2 - trayPaddingPx * 2
-    const cellPx = (gridPx - (cols - 1) * gapPx) / cols
-    const peakOverflowPx = (cellPx * explosionPeakScale - cellPx) / 2
+    // Narrowest supported viewport up to the widest the cap allows.
+    for (const viewportPx of [320, 360, 390, 430, 768]) {
+      const stagePx = Math.min(viewportPx - sectionPaddingPx * 2, boardCapPx)
+      const gridPx = stagePx - trayPaddingPx * 2
+      const cellPx = (gridPx - (cols - 1) * gapPx) / cols
+      const peakOverflowPx = (cellPx * explosionPeakScale - cellPx) / 2
 
-    expect(cellPx).toBeGreaterThanOrEqual(44)
-    // The tray padding is what absorbs both, so neither can push the grid past the viewport.
-    expect(peakOverflowPx).toBeLessThanOrEqual(trayPaddingPx)
-    expect(blastRingInsetPx).toBeLessThanOrEqual(trayPaddingPx)
+      expect(cellPx, `cell at ${viewportPx}px`).toBeGreaterThanOrEqual(44)
+      // The tray padding absorbs both, so neither can push the grid past the viewport.
+      expect(peakOverflowPx, `blast at ${viewportPx}px`).toBeLessThanOrEqual(trayPaddingPx)
+      expect(blastRingInsetPx).toBeLessThanOrEqual(trayPaddingPx)
+    }
   })
 
   it('provides descriptive aria labels for cells', () => {
