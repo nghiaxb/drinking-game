@@ -57,6 +57,23 @@
     touch-action: manipulation;
   }
 
+  /*
+   * The rule above should already cover the page, because touch-action is intersected up the
+   * ancestor chain — but WebKit ignores the root element when deciding whether double-tap zoom is
+   * allowed, so every tappable thing has to declare it itself. `manipulation` keeps pan and
+   * pinch-zoom and only drops the double-tap gesture. Text inputs are left out on purpose: there
+   * double-tap selects a word, which is wanted.
+   */
+  button,
+  a,
+  label,
+  summary,
+  [role='button'],
+  input[type='checkbox'],
+  input[type='radio'] {
+    touch-action: manipulation;
+  }
+
   body {
     margin: 0;
     min-height: 100dvh;
