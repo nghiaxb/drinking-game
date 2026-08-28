@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
+import { TRIPLE_REWARD_LABELS } from '../rewards'
 import { createSlotGame } from './useSlotGame'
 
 function createGame(overrides: Partial<Parameters<typeof createSlotGame>[0]> = {}) {
@@ -37,7 +38,7 @@ describe('useSlotGame', () => {
 
     expect(game.phase.value).toBe('result')
     expect(game.symbols.value).toEqual(['beer', 'beer', 'beer'])
-    expect(game.rewardLabel.value).toBe('Uống 3 ngụm')
+    expect(game.rewardLabel.value).toBe(TRIPLE_REWARD_LABELS.beer)
     expect(game.isJackpot.value).toBe(true)
 
     vi.useRealTimers()

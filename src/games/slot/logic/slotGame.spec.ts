@@ -8,7 +8,7 @@ import {
   createInitialState,
   resolveReelVisualStatus,
 } from './slotGame'
-import { JACKPOT_HEADLINE, MISS_HEADLINE, PAIR_HEADLINE } from '../rewards'
+import { JACKPOT_HEADLINE, MISS_HEADLINE, PAIR_HEADLINE, TRIPLE_REWARD_LABELS } from '../rewards'
 
 describe('slotGame', () => {
   it('creates idle initial state', () => {
@@ -25,7 +25,7 @@ describe('slotGame', () => {
     const plan = computeSpinPlan(() => 0, DEFAULT_SYMBOL_WEIGHTS, DICE_CHALLENGES)
     expect(plan.symbols).toEqual(['beer', 'beer', 'beer'])
     expect(plan.isJackpot).toBe(true)
-    expect(plan.rewardLabel).toBe('Uống 3 ngụm')
+    expect(plan.rewardLabel).toBe(TRIPLE_REWARD_LABELS.beer)
   })
 
   it('resolves dice triple with challenge RNG', () => {
@@ -68,20 +68,20 @@ describe('slotGame', () => {
     expect(
       buildStatusAriaLabel('result', {
         outcome: 'jackpot',
-        rewardLabel: 'Uống 3 ngụm',
+        rewardLabel: 'Uống 100%',
         isJackpot: true,
         symbols: ['beer', 'beer', 'beer'],
       }),
-    ).toBe(`${JACKPOT_HEADLINE} — Uống 3 ngụm — 🍺 🍺 🍺`)
+    ).toBe(`${JACKPOT_HEADLINE} — Uống 100% — 🍺 🍺 🍺`)
 
     expect(
       buildStatusAriaLabel('result', {
         outcome: 'pair',
-        rewardLabel: 'Uống 1 ngụm',
+        rewardLabel: 'Uống 25%',
         isJackpot: false,
         symbols: ['beer', 'beer', 'skull'],
       }),
-    ).toBe(`${PAIR_HEADLINE} — Uống 1 ngụm — 🍺 🍺 💀`)
+    ).toBe(`${PAIR_HEADLINE} — Uống 25% — 🍺 🍺 💀`)
 
     expect(
       buildStatusAriaLabel('result', {

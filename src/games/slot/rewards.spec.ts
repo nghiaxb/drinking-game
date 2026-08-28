@@ -74,12 +74,12 @@ describe('rewards', () => {
   })
 
   it('builds an announcement without repeating the headline in the reward', () => {
-    expect(buildResultAnnouncement('pair', false, 'Uống 1 ngụm', '🍺 🍺 💀')).toBe(
-      `${PAIR_HEADLINE} — Uống 1 ngụm — 🍺 🍺 💀`,
+    expect(buildResultAnnouncement('pair', false, 'Uống 25%', '🍺 🍺 💀')).toBe(
+      `${PAIR_HEADLINE} — Uống 25% — 🍺 🍺 💀`,
     )
     expect(buildResultAnnouncement('miss', false, '', '')).toBe(MISS_HEADLINE)
-    expect(buildResultAnnouncement('jackpot', true, 'Uống 3 ngụm')).toBe(
-      `${JACKPOT_HEADLINE} — Uống 3 ngụm`,
+    expect(buildResultAnnouncement('jackpot', true, 'Uống 100%')).toBe(
+      `${JACKPOT_HEADLINE} — Uống 100%`,
     )
   })
 

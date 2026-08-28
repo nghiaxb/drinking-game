@@ -27,8 +27,12 @@ describe('SlotReels', () => {
 
     expect(wrapper.get('[data-testid="slot-reels"]').attributes('role')).toBe('group')
     expect(wrapper.findAll('[data-testid^="slot-reel-"]')).toHaveLength(3)
-    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('aria-label')).toContain('sẵn sàng')
-    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('aria-label')).not.toContain('đang quay')
+    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('aria-label')).toContain(
+      'sẵn sàng',
+    )
+    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('aria-label')).not.toContain(
+      'đang quay',
+    )
     expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('data-reel-status')).toBe('idle')
   })
 
@@ -48,8 +52,12 @@ describe('SlotReels', () => {
 
     expect(activeSymbol.classes()).toContain('slot-reel-symbol--cycle')
     expect(stoppedSymbol.classes()).toContain('slot-reel-symbol--shake')
-    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('data-reel-status')).toBe('spinning')
-    expect(wrapper.get('[data-testid="slot-reel-1"]').attributes('data-reel-status')).toBe('stopped')
+    expect(wrapper.get('[data-testid="slot-reel-0"]').attributes('data-reel-status')).toBe(
+      'spinning',
+    )
+    expect(wrapper.get('[data-testid="slot-reel-1"]').attributes('data-reel-status')).toBe(
+      'stopped',
+    )
   })
 
   it('skips spin motion classes when reduced motion is enabled', () => {
@@ -80,7 +88,9 @@ describe('SlotReels', () => {
     })
 
     expect(wrapper.get('[data-testid="slot-reel-2"]').classes()).toContain('slot-reel--jackpot')
-    expect(wrapper.get('[data-testid="slot-reel-2"]').attributes('data-reel-status')).toBe('stopped')
+    expect(wrapper.get('[data-testid="slot-reel-2"]').attributes('data-reel-status')).toBe(
+      'stopped',
+    )
   })
 })
 

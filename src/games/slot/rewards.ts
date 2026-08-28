@@ -2,8 +2,13 @@ import { DICE_CHALLENGES, MISS_ACTIONS } from './challengeConfig'
 import { normalizeRngValue, pickWeightedSymbol } from './probabilities'
 import type { ResolvedReward, SlotSymbolId, SpinOutcome, SymbolWeights } from './types'
 
+/*
+ * One unit across the whole app — percent of the glass, the same wording the wheel uses. The table
+ * used to mix "3 ngụm" and "100%" in adjacent entries, so nobody could tell which was heavier.
+ * Three steps (25 / 50 / 100) keep the pair tier readably lighter than the jackpot above it.
+ */
 export const TRIPLE_REWARD_LABELS: Record<Exclude<SlotSymbolId, 'dice'>, string> = {
-  beer: 'Uống 3 ngụm',
+  beer: 'Uống 50%',
   skull: 'Uống 100%',
   clover: 'Miễn uống',
   crown: 'Chỉ định 2 người',
@@ -15,12 +20,12 @@ export const TRIPLE_REWARD_LABELS: Record<Exclude<SlotSymbolId, 'dice'>, string>
  * which left 97% of pulls doing nothing at all — and a pull that does nothing is a wasted turn.
  */
 export const PAIR_REWARD_LABELS: Record<SlotSymbolId, string> = {
-  beer: 'Uống 1 ngụm',
-  skull: 'Uống 2 ngụm',
+  beer: 'Uống 25%',
+  skull: 'Uống 50%',
   clover: 'Miễn lượt này',
-  crown: 'Chỉ định 1 người uống 1 ngụm',
-  fire: 'Cả bàn uống 1 ngụm',
-  dice: 'Oẳn tù tì với người bên phải — thua uống 1 ngụm',
+  crown: 'Chỉ định 1 người uống 50%',
+  fire: 'Cả bàn uống 25%',
+  dice: 'Oẳn tù tì với người bên phải — thua uống 50%',
 }
 
 export const JACKPOT_HEADLINE = 'JACKPOT!'

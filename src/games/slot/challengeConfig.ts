@@ -17,11 +17,11 @@ export type DiceChallenge = (typeof DICE_CHALLENGES)[number]
  */
 export const MISS_ACTIONS = [
   'Chuyền cần cho người bên phải',
-  'Ai cười đầu tiên uống 1 ngụm',
+  'Ai cười đầu tiên uống 25%',
   'Cả bàn chạm ly, chưa ai uống',
   'Người bên trái kéo thay bạn lượt tới',
   'Giữ nguyên ly — lượt này bạn thoát',
-  'Ai đang cầm điện thoại uống 1 ngụm',
+  'Ai đang cầm điện thoại uống 25%',
   'Kể một lý do để cả bàn nâng ly',
   'Đoán xem lượt tới có ăn không',
 ] as const

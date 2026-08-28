@@ -111,12 +111,12 @@ describe('SlotView', () => {
       }
     }
     controls.__testControls.phase.value = 'result'
-    controls.__testControls.rewardLabel.value = 'Uống 3 ngụm'
+    controls.__testControls.rewardLabel.value = 'Uống 100%'
     controls.__testControls.outcome.value = 'jackpot'
     controls.__testControls.isJackpot.value = true
 
     const wrapper = mount(SlotView)
-    expect(wrapper.get('[data-testid="slot-result"]').text()).toContain('Uống 3 ngụm')
+    expect(wrapper.get('[data-testid="slot-result"]').text()).toContain('Uống 100%')
   })
 
   it('delegates lever click only to spin without duplicate priming', async () => {
@@ -144,7 +144,7 @@ describe('SlotView', () => {
       }
     }
     controls.__testControls.phase.value = 'result'
-    controls.__testControls.rewardLabel.value = 'Uống 3 ngụm'
+    controls.__testControls.rewardLabel.value = 'Uống 100%'
     controls.__testControls.outcome.value = 'jackpot'
     controls.__testControls.isJackpot.value = true
 

@@ -6,7 +6,7 @@ describe('SlotResult', () => {
   it('shows jackpot headline for triple wins', () => {
     const wrapper = mount(SlotResult, {
       props: {
-        rewardLabel: 'Uống 3 ngụm',
+        rewardLabel: 'Uống 100%',
         outcome: 'jackpot',
         isJackpot: true,
       },
@@ -14,16 +14,16 @@ describe('SlotResult', () => {
 
     expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-live')).toBe('assertive')
     expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
-      'JACKPOT! — Uống 3 ngụm',
+      'JACKPOT! — Uống 100%',
     )
     expect(wrapper.text()).toContain('JACKPOT!')
-    expect(wrapper.text()).toContain('Uống 3 ngụm')
+    expect(wrapper.text()).toContain('Uống 100%')
   })
 
   it('shows a pair reward on its own tier styling', () => {
     const wrapper = mount(SlotResult, {
       props: {
-        rewardLabel: 'Uống 1 ngụm',
+        rewardLabel: 'Uống 25%',
         outcome: 'pair',
         isJackpot: false,
         symbolRow: '🍺 🍺 💀',
@@ -32,11 +32,11 @@ describe('SlotResult', () => {
 
     const text = wrapper.text()
     expect(text.match(/ĂN ĐÔI!/g)?.length).toBe(1)
-    expect(wrapper.get('[data-testid="slot-result-detail"]').text()).toBe('Uống 1 ngụm')
+    expect(wrapper.get('[data-testid="slot-result-detail"]').text()).toBe('Uống 25%')
     expect(wrapper.get('[data-testid="slot-result-symbol-row"]').text()).toBe('🍺 🍺 💀')
     expect(wrapper.get('[data-testid="slot-result"]').classes()).toContain('bg-teal-soft')
     expect(wrapper.get('[data-testid="slot-result"]').attributes('aria-label')).toBe(
-      'ĂN ĐÔI! — Uống 1 ngụm — 🍺 🍺 💀',
+      'ĂN ĐÔI! — Uống 25% — 🍺 🍺 💀',
     )
   })
 

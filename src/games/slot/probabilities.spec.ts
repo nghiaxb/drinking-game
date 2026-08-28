@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_SYMBOL_WEIGHTS, getTotalWeight, normalizeRngValue, pickWeightedSymbol, resolvePickRaw, validateSymbolWeights } from './probabilities'
+import {
+  DEFAULT_SYMBOL_WEIGHTS,
+  getTotalWeight,
+  normalizeRngValue,
+  pickWeightedSymbol,
+  resolvePickRaw,
+  validateSymbolWeights,
+} from './probabilities'
 import { SLOT_SYMBOL_ORDER } from './symbols'
 
 describe('probabilities', () => {
