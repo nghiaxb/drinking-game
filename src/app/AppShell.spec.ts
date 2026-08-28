@@ -6,8 +6,16 @@ import { initPwaUpdate, resetPwaUpdateForTests } from '@/pwa/usePwaUpdate'
 import { resetPwaInstallForTests } from '@/pwa/usePwaInstall'
 import { resetSettingsForTests } from '@/composables/useSettings'
 
+// Captured so a test can fire the callbacks the real service worker would.
+const swRegistration = vi.hoisted(() => ({
+  options: null as { onOfflineReady?: () => void } | null,
+}))
+
 vi.mock('virtual:pwa-register', () => ({
-  registerSW: vi.fn().mockReturnValue(vi.fn().mockResolvedValue(undefined)),
+  registerSW: vi.fn((options: { onOfflineReady?: () => void }) => {
+    swRegistration.options = options
+    return vi.fn().mockResolvedValue(undefined)
+  }),
 }))
 
 const settingsLoad = vi.fn().mockResolvedValue(undefined)
@@ -101,6 +109,30 @@ describe('AppShell', () => {
 
     expect(wrapper.find('[data-testid="shell-settings"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="shell-back"]').exists()).toBe(false)
+  })
+
+  it('keeps the offline and iOS install hints off game routes', async () => {
+    // The banners are onboarding chrome; on a game screen they push the board down.
+    const userAgent = vi.spyOn(globalThis.navigator, 'userAgent', 'get')
+    userAgent.mockReturnValue('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Safari')
+
+    const router = createTestRouter()
+    const wrapper = mount(AppShell, { global: { plugins: [router] } })
+    await router.isReady()
+    await flushPromises()
+    swRegistration.options?.onOfflineReady?.()
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="pwa-offline-ready"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="pwa-ios-guidance"]').exists()).toBe(true)
+
+    await router.push('/games/wheel')
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="pwa-offline-ready"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="pwa-ios-guidance"]').exists()).toBe(false)
+
+    userAgent.mockRestore()
   })
 
   it('removes router navigation guards on unmount', async () => {

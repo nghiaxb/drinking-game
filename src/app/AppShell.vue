@@ -52,7 +52,7 @@
     </header>
 
     <div
-      v-if="pwaUpdate.offlineReady.value && !offlineDismissed"
+      v-if="showPwaHints && pwaUpdate.offlineReady.value && !offlineDismissed"
       class="border-b-2 border-teal bg-teal-soft px-safe py-2 text-center text-sm font-semibold text-ink"
       data-testid="pwa-offline-ready"
     >
@@ -87,7 +87,7 @@
     </div>
 
     <div
-      v-if="pwaInstall.showIosGuidance.value && !pwaInstall.isStandalone.value"
+      v-if="showPwaHints && pwaInstall.showIosGuidance.value && !pwaInstall.isStandalone.value"
       class="border-b-2 border-border bg-surface-muted px-safe py-2 text-center text-xs text-ink-muted"
       data-testid="pwa-ios-guidance"
     >
@@ -134,6 +134,8 @@ const showBack = computed(() => route.path !== '/')
 const showHomeButton = computed(() => route.path.startsWith('/games/'))
 const showSettings = computed(() => route.path === '/')
 const showHomeTitle = computed(() => route.path === '/')
+// Offline / "add to home screen" hints are onboarding, not gameplay — they only crowd a game screen.
+const showPwaHints = computed(() => route.path === '/')
 const pageTitle = computed(() => {
   if (route.path === '/settings') {
     return 'Cài đặt'
