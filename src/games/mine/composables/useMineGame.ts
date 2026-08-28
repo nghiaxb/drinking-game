@@ -86,18 +86,23 @@ export function createMineGame(options: MineGameOptions): MineGameController {
   }
 
   function handlePress(index: number): Promise<void> {
-    pressChain = pressChain
-      .then(async () => {
-        const result = pressCell(state.value, index)
-        if (result.outcome === 'ignored') {
-          return
-        }
+    // Reveal synchronously. This used to run inside the feedback chain, which meant every tap
+    // waited for the previous tap's sound and vibration to resolve — eight quick taps took over
+    // half a second to show up, and taps with several fingers were serialised behind each other.
+    const result = pressCell(state.value, index)
+    const outcome = result.outcome
+    if (outcome === 'ignored') {
+      return pressChain
+    }
 
-        state.value = result.state
-        await deliverFeedback(result.outcome)
-      })
+    state.value = result.state
+
+    // Sound and haptics still queue, so two cells never overlap their click, but nothing waits
+    // on them to draw.
+    pressChain = pressChain
+      .then(() => deliverFeedback(outcome))
       .catch(() => {
-        // Feedback failures are no-ops; keep chain alive for later presses.
+        // Feedback failures are no-ops; keep the chain alive for later presses.
       })
 
     return pressChain

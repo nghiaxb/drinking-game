@@ -164,4 +164,30 @@ describe('useMineGame', () => {
     expect(game.safeRevealedCount.value).toBe(1)
     expect(game.nextRisk.value).toBeCloseTo(1 / 24)
   })
+
+  it('reveals synchronously and does not make one press wait on the previous press feedback', () => {
+    const feedback = createFeedback()
+    const game = createMineGame({ rng: nextRng, feedback })
+    const safe = [...Array(25).keys()].filter((i) => !game.mineIndices.value.includes(i))
+
+    // No await: three presses in the same tick, the way three fingers arrive.
+    void game.pressCell(safe[0]!)
+    void game.pressCell(safe[1]!)
+    void game.pressCell(safe[2]!)
+
+    expect(game.revealedIndices.value).toEqual([safe[0], safe[1], safe[2]])
+  })
+
+  it('keeps feedback to once per cell, since a tap fires pointerdown and then click', async () => {
+    const feedback = createFeedback()
+    const game = createMineGame({ rng: nextRng, feedback })
+    const safe = [...Array(25).keys()].find((i) => !game.mineIndices.value.includes(i))!
+
+    await game.pressCell(safe)
+    await game.pressCell(safe)
+
+    expect(game.revealedIndices.value).toEqual([safe])
+    expect(feedback.playClick).toHaveBeenCalledTimes(1)
+    expect(feedback.vibrateLight).toHaveBeenCalledTimes(1)
+  })
 })

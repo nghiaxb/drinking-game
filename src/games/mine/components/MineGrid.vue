@@ -16,6 +16,7 @@
         :disabled="disabledSet.has(index)"
         :aria-label="cellLabel(index)"
         :aria-pressed="revealedSet.has(index)"
+        @pointerdown="emit('press', index)"
         @click="emit('press', index)"
       >
         <!-- A cleared cell shows nothing at all: the frogs still on the board are the choice left. -->
@@ -128,6 +129,7 @@ function cellLabel(index: number): string {
   min-height: var(--mine-cell-min);
   padding: 5%;
   border-radius: var(--radius-pill);
+  touch-action: pan-y;
 }
 
 .mine-cell__frog {
