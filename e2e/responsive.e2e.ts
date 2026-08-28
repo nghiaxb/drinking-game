@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import {
   attachConsoleGuard,
   assertFocusVisibleKeyboard,
+  assertDocumentDoesNotScroll,
   assertNoHorizontalOverflow,
   assertPrimaryControlsMinSize,
   dismissPwaBanners,
@@ -22,6 +23,7 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
 
         await expect(page.locator('[data-testid="app-shell"]')).toBeVisible()
         await assertNoHorizontalOverflow(page)
+        await assertDocumentDoesNotScroll(page)
 
         const mainVisible = await page.evaluate(() => {
           const main = document.querySelector('main')
@@ -40,7 +42,9 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         } else {
           const homeCards = page.locator('[data-testid^="home-game-"]')
           await expect(homeCards).toHaveCount(5)
-          const cardHeight = await homeCards.first().evaluate((element) => element.getBoundingClientRect().height)
+          const cardHeight = await homeCards
+            .first()
+            .evaluate((element) => element.getBoundingClientRect().height)
           expect(cardHeight).toBeGreaterThanOrEqual(43)
         }
 

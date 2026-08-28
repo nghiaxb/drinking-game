@@ -135,6 +135,44 @@ export async function assertNoHorizontalOverflow(page: Page): Promise<void> {
   expect(overflow, 'horizontal overflow detected').toBeLessThanOrEqual(1)
 }
 
+/**
+ * The document must never scroll: iOS gives the document scroller pull-to-refresh and rubber-band
+ * bounce, which reloaded the page mid-game. Content that overflows has to stay reachable inside an
+ * inner scroller, so both halves are asserted together.
+ */
+export async function assertDocumentDoesNotScroll(page: Page): Promise<void> {
+  const result = await page.evaluate(() => {
+    const doc = document.documentElement
+    window.scrollTo(0, 1000)
+    const drift = window.scrollY
+    window.scrollTo(0, 0)
+
+    const overflowing: string[] = []
+    const unreachable: string[] = []
+    for (const element of document.querySelectorAll<HTMLElement>('body *')) {
+      if (element.scrollHeight <= element.clientHeight + 1) {
+        continue
+      }
+      const label = element.tagName.toLowerCase() + (element.id ? `#${element.id}` : '')
+      if (!/(auto|scroll)/.test(getComputedStyle(element).overflowY)) {
+        continue
+      }
+      overflowing.push(label)
+      element.scrollTop = element.scrollHeight
+      if (Math.abs(element.scrollTop + element.clientHeight - element.scrollHeight) > 2) {
+        unreachable.push(label)
+      }
+      element.scrollTop = 0
+    }
+
+    return { drift, docOverflow: doc.scrollHeight - doc.clientHeight, overflowing, unreachable }
+  })
+
+  expect(result.drift, 'document scrolled — iOS would pull-to-refresh here').toBe(0)
+  expect(result.docOverflow, 'document has vertical overflow').toBeLessThanOrEqual(1)
+  expect(result.unreachable, 'content unreachable inside its scroller').toEqual([])
+}
+
 export async function assertPrimaryControlsMinSize(
   page: Page,
   selector = PRIMARY_CONTROL_SELECTORS,
@@ -144,7 +182,10 @@ export async function assertPrimaryControlsMinSize(
     return elements.map((element) => {
       const rect = element.getBoundingClientRect()
       return {
-        testId: element.getAttribute('data-testid') ?? element.textContent?.trim()?.slice(0, 24) ?? 'control',
+        testId:
+          element.getAttribute('data-testid') ??
+          element.textContent?.trim()?.slice(0, 24) ??
+          'control',
         width: rect.width,
         height: rect.height,
         min,

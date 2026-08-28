@@ -129,6 +129,7 @@ function onReplay(): void {
 .crocodile-view--scroll-y {
   overflow-x: visible;
   overflow-y: auto;
+  overscroll-behavior: none;
 }
 
 .crocodile-stage--responsive {

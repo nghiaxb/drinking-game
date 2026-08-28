@@ -126,6 +126,7 @@ onBeforeUnmount(() => {
 /* The section is now exactly its content box, so anything taller has to stay reachable. */
 .slot-view {
   overflow-y: auto;
+  overscroll-behavior: none;
 }
 
 .slot-lever {

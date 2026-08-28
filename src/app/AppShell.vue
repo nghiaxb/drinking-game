@@ -1,7 +1,8 @@
 <template>
-  <div class="app-shell flex min-h-dvh flex-col" data-testid="app-shell">
+  <div class="app-shell flex h-full flex-col" data-testid="app-shell">
+    <!-- Outside the scroller (.app-content) now, so it stays put without needing `sticky`. -->
     <header
-      class="sticky top-0 z-40 border-b-2 border-border bg-surface/95 px-safe pt-safe backdrop-blur-sm"
+      class="z-40 shrink-0 border-b-2 border-border bg-surface/95 px-safe pt-safe backdrop-blur-sm"
     >
       <div class="mx-auto flex h-14 max-w-lg items-center justify-between gap-2">
         <div class="flex min-w-11 items-center">
@@ -65,7 +66,11 @@
       data-testid="pwa-update-banner"
     >
       Có bản cập nhật mới
-      <button type="button" class="btn-tactile btn-tactile-primary ml-2 px-3 py-1 text-sm" @click="applyUpdate">
+      <button
+        type="button"
+        class="btn-tactile btn-tactile-primary ml-2 px-3 py-1 text-sm"
+        @click="applyUpdate"
+      >
         Cập nhật
       </button>
     </div>
@@ -76,7 +81,9 @@
       data-testid="pwa-install-banner"
     >
       Cài app để chơi nhanh hơn
-      <button type="button" class="btn-tactile ml-2 px-3 py-1 text-sm" @click="installApp">Cài đặt</button>
+      <button type="button" class="btn-tactile ml-2 px-3 py-1 text-sm" @click="installApp">
+        Cài đặt
+      </button>
     </div>
 
     <div

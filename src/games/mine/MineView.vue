@@ -183,6 +183,7 @@ function onReplay(): void {
 <style scoped>
 .mine-view--scroll-y {
   overflow-y: auto;
+  overscroll-behavior: none;
   /* Caps the board on tablet and desktop; phones get the full-bleed treatment below instead. */
   --mine-board-max: 27rem;
   /* Mirrors .app-content's own padding-inline, so the breakout below cancels it exactly. */

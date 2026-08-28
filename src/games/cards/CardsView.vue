@@ -1,6 +1,6 @@
 <template>
   <section
-    class="game-surface cards-view flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto py-1"
+    class="game-surface cards-view flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-none py-1"
     data-testid="cards-view"
     aria-labelledby="cards-heading"
   >

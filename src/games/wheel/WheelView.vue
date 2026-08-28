@@ -244,5 +244,6 @@ async function onResetItems(): Promise<void> {
 
 .wheel-view {
   overflow-y: auto;
+  overscroll-behavior: none;
 }
 </style>

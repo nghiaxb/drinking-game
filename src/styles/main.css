@@ -52,9 +52,18 @@
     box-sizing: border-box;
   }
 
+  /*
+   * The document must not be the scroller: iOS gives the document scroller rubber-band bounce and
+   * pull-to-refresh, so any downward drag reloaded the game mid-round. Height is pinned and overflow
+   * clipped here, and .app-content below owns the scrolling instead. dvh, not 100%, because 100%
+   * resolves against the large viewport and would hide content behind Safari's toolbar.
+   */
   html {
     -webkit-text-size-adjust: 100%;
     touch-action: manipulation;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   /*
@@ -76,7 +85,9 @@
 
   body {
     margin: 0;
-    min-height: 100dvh;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
     font-family: var(--font-body);
     color: var(--color-ink);
     background-color: var(--color-surface);
@@ -85,7 +96,7 @@
   }
 
   #app {
-    min-height: 100dvh;
+    height: 100%;
   }
 
   h1,
@@ -115,17 +126,22 @@
 
 @layer components {
   .app-root {
-    min-height: 100dvh;
+    height: 100%;
     display: flex;
     flex-direction: column;
   }
 
+  /* The app's only scroller. `contain` stops a fling here from ever reaching the document. */
   .app-content {
     flex: 1;
+    min-height: 0;
     width: 100%;
     max-width: 32rem;
     margin-inline: auto;
     padding-inline: max(1rem, var(--spacing-safe-left), var(--spacing-safe-right));
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .btn-tactile {
