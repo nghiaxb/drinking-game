@@ -1,6 +1,6 @@
 <template>
   <section
-    class="game-surface slot-view flex min-h-[calc(100dvh-4.5rem)] flex-col gap-4 overflow-x-hidden py-1"
+    class="game-surface slot-view flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden py-1"
     data-testid="slot-view"
     aria-labelledby="slot-heading"
   >
@@ -123,6 +123,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* The section is now exactly its content box, so anything taller has to stay reachable. */
+.slot-view {
+  overflow-y: auto;
+}
+
 .slot-lever {
   min-width: var(--touch-target-min, 2.75rem);
 }

@@ -1,6 +1,6 @@
 <template>
   <section
-    class="game-surface wheel-view flex min-h-[calc(100dvh-4.5rem)] flex-col gap-4 overflow-x-hidden py-1"
+    class="game-surface wheel-view flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden py-1"
     data-testid="wheel-view"
     aria-labelledby="wheel-heading"
   >

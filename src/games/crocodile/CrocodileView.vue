@@ -1,6 +1,6 @@
 <template>
   <section
-    class="game-surface crocodile-view--scroll-y flex min-h-[calc(100dvh-4.5rem)] flex-col gap-4 py-1"
+    class="game-surface crocodile-view--scroll-y flex min-h-0 flex-1 flex-col gap-4 py-1"
     data-testid="crocodile-view"
     aria-labelledby="crocodile-heading"
     :data-result-delay-ms="String(CROCODILE_RESULT_DELAY_MS)"
