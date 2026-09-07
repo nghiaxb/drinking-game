@@ -14,6 +14,12 @@ const settingsState = {
   resetAllData: vi.fn().mockResolvedValue(true),
 }
 
+const routerPush = vi.fn().mockResolvedValue(undefined)
+
+vi.mock('vue-router', () => ({
+  useRouter: () => ({ push: routerPush }),
+}))
+
 vi.mock('@/composables/useSettings', async (importOriginal) => {
   const original = await importOriginal<typeof import('@/composables/useSettings')>()
   return {
@@ -59,7 +65,9 @@ describe('SettingsView', () => {
     await flushPromises()
 
     expect(settingsState.resetGameData).toHaveBeenCalled()
-    expect(wrapper.find('[data-testid="settings-toast"]').text()).toContain('Đã xoá dữ liệu trò chơi')
+    expect(wrapper.find('[data-testid="settings-toast"]').text()).toContain(
+      'Đã xoá dữ liệu trò chơi',
+    )
   })
 
   it('shows confirm dialog and toast after reset all', async () => {
@@ -72,5 +80,30 @@ describe('SettingsView', () => {
 
     expect(settingsState.resetAllData).toHaveBeenCalled()
     expect(wrapper.find('[data-testid="settings-toast"]').text()).toContain('mặc định')
+  })
+  it('opens the hidden control page after seven taps on the title', async () => {
+    const wrapper = mount(SettingsView)
+    await flushPromises()
+    const title = wrapper.get('[data-testid="settings-title"]')
+
+    for (let i = 0; i < 6; i += 1) {
+      await title.trigger('click')
+    }
+    expect(routerPush).not.toHaveBeenCalled()
+
+    await title.trigger('click')
+    expect(routerPush).toHaveBeenCalledWith('/x')
+  })
+
+  it('keeps the title inert on ordinary taps', async () => {
+    const wrapper = mount(SettingsView)
+    await flushPromises()
+    const title = wrapper.get('[data-testid="settings-title"]')
+
+    for (let i = 0; i < 3; i += 1) {
+      await title.trigger('click')
+    }
+
+    expect(routerPush).not.toHaveBeenCalled()
   })
 })

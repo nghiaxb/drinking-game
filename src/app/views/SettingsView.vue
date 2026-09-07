@@ -1,7 +1,14 @@
 <template>
   <section data-testid="settings-view" class="flex flex-col gap-6">
     <header class="flex flex-col gap-1">
-      <h1 class="font-display text-2xl font-semibold text-ink">Cài đặt</h1>
+      <!-- Deliberately not a button: a hidden entry must stay out of the tab order and off screen readers. -->
+      <h1
+        class="settings-title font-display text-2xl font-semibold text-ink"
+        data-testid="settings-title"
+        @click="onTitleTap"
+      >
+        Cài đặt
+      </h1>
       <p class="text-sm text-ink-muted">Âm thanh, rung và quản lý dữ liệu cục bộ.</p>
     </header>
 
@@ -29,7 +36,12 @@
     </div>
 
     <div class="flex flex-col gap-3">
-      <button type="button" class="btn-tactile w-full" data-testid="reset-game-button" @click="openResetGame">
+      <button
+        type="button"
+        class="btn-tactile w-full"
+        data-testid="reset-game-button"
+        @click="openResetGame"
+      >
         Xoá dữ liệu trò chơi
       </button>
       <button
@@ -70,11 +82,15 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { createSecretTap } from '@/cheat/secretTap'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useSettings } from '@/composables/useSettings'
 
 type DialogKind = 'game' | 'all' | null
 
+const router = useRouter()
+const secretTap = createSecretTap()
 const settings = useSettings()
 const soundEnabled = ref(true)
 const vibrationEnabled = ref(true)
@@ -138,4 +154,16 @@ function showToast(message: string): void {
     toastMessage.value = ''
   }, 3500)
 }
+
+function onTitleTap(): void {
+  if (secretTap.tap()) {
+    void router.push('/x')
+  }
+}
 </script>
+
+<style scoped>
+.settings-title {
+  touch-action: manipulation;
+}
+</style>
