@@ -1,4 +1,5 @@
 import { MINE_CONFIG } from '../config'
+import type { ForcedOutcome } from '@/cheat/cheatTypes'
 import type { MineGameState, PressCellResult } from '../types'
 
 export type RandomSource = () => number
@@ -115,7 +116,37 @@ export function computeNextRisk(state: MineGameState): number {
   return Math.min(1, minesLeft / unopened)
 }
 
-export function pressCell(state: MineGameState, cellIndex: number): PressCellResult {
+/** Uniform pick among cells that are unrevealed, not a mine, and not the excluded one. */
+function pickMineRelocation(
+  state: MineGameState,
+  excludedIndex: number,
+  rng: RandomSource,
+): number | null {
+  const cellCount = normalizeGridSize(state.gridSize) ** 2
+  const revealed = new Set(state.revealedIndices)
+  const mines = new Set(state.mineIndices)
+  const candidates: number[] = []
+
+  for (let index = 0; index < cellCount; index += 1) {
+    if (index !== excludedIndex && !revealed.has(index) && !mines.has(index)) {
+      candidates.push(index)
+    }
+  }
+
+  if (candidates.length === 0) {
+    return null
+  }
+
+  const pick = Math.floor(normalizeRngValue(rng()) * candidates.length)
+  return candidates[Math.min(candidates.length - 1, pick)] ?? null
+}
+
+export function pressCell(
+  state: MineGameState,
+  cellIndex: number,
+  forced?: ForcedOutcome,
+  rng: RandomSource = Math.random,
+): PressCellResult {
   if (!isValidCellIndex(cellIndex, state.gridSize)) {
     return { state, outcome: 'ignored' }
   }
@@ -126,6 +157,38 @@ export function pressCell(state: MineGameState, cellIndex: number): PressCellRes
 
   const revealedIndices = [...state.revealedIndices, cellIndex]
   const isMine = state.mineIndices.includes(cellIndex)
+
+  if (forced === 'lose' && !isMine) {
+    /*
+     * Swap rather than append: computeNextRisk and the "đã bắt x/24" counter both read
+     * mineIndices, so a changed length would visibly shift the odds in front of the table.
+     */
+    const [, ...rest] = state.mineIndices
+    return {
+      state: {
+        ...state,
+        phase: 'exploded',
+        mineIndices: [...rest, cellIndex],
+        revealedIndices,
+        hitMineIndex: cellIndex,
+      },
+      outcome: 'mine',
+    }
+  }
+
+  if (forced === 'win' && isMine) {
+    const relocated = pickMineRelocation(state, cellIndex, rng)
+    if (relocated !== null) {
+      return {
+        state: {
+          ...state,
+          mineIndices: state.mineIndices.map((index) => (index === cellIndex ? relocated : index)),
+          revealedIndices,
+        },
+        outcome: 'safe',
+      }
+    }
+  }
 
   if (isMine) {
     return {

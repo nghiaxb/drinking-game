@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { MINE_CONFIG } from '../config'
+import type { MineGameState } from '../types'
 import {
   clampMineCount,
   computeNextRisk,
@@ -185,6 +186,93 @@ describe('mineGame', () => {
 
       expect(again.outcome).toBe('ignored')
       expect(again.state).toEqual(exploded.state)
+    })
+
+    describe('forced outcomes', () => {
+      function playingState(overrides: Partial<MineGameState> = {}): MineGameState {
+        return {
+          phase: 'playing',
+          gridSize: 5,
+          mineCount: 1,
+          mineIndices: [20],
+          revealedIndices: [],
+          hitMineIndex: null,
+          ...overrides,
+        }
+      }
+
+      it('swaps a mine onto the pressed cell when forced to lose', () => {
+        const result = pressCell(playingState(), 3, 'lose')
+
+        expect(result.outcome).toBe('mine')
+        expect(result.state.phase).toBe('exploded')
+        expect(result.state.hitMineIndex).toBe(3)
+        expect(result.state.mineIndices).toContain(3)
+        expect(result.state.mineIndices).toHaveLength(result.state.mineCount)
+      })
+
+      it('keeps mine count intact when forced to lose on a cell that is already a mine', () => {
+        const result = pressCell(playingState(), 20, 'lose')
+
+        expect(result.outcome).toBe('mine')
+        expect(result.state.hitMineIndex).toBe(20)
+        expect(result.state.mineIndices).toEqual([20])
+        expect(new Set(result.state.mineIndices).size).toBe(result.state.mineIndices.length)
+        expect(result.state.mineIndices).toHaveLength(result.state.mineCount)
+      })
+
+      it('keeps mine count intact with three mines when forced to lose', () => {
+        const state = playingState({ mineCount: 3, mineIndices: [5, 12, 20] })
+        const result = pressCell(state, 7, 'lose')
+
+        expect(result.state.mineIndices).toContain(7)
+        expect(result.state.mineIndices).toHaveLength(3)
+        expect(new Set(result.state.mineIndices).size).toBe(3)
+      })
+
+      it('relocates the mine when forced to win on it', () => {
+        const result = pressCell(playingState(), 20, 'win', () => 0)
+
+        expect(result.outcome).toBe('safe')
+        expect(result.state.phase).toBe('playing')
+        expect(result.state.mineIndices).not.toContain(20)
+        expect(result.state.mineIndices).toHaveLength(1)
+        expect(result.state.revealedIndices).toEqual([20])
+      })
+
+      it('leaves a safe cell untouched when forced to win off a mine', () => {
+        const result = pressCell(playingState(), 4, 'win', () => 0)
+
+        expect(result.outcome).toBe('safe')
+        expect(result.state.mineIndices).toEqual([20])
+      })
+
+      it('cannot rescue when no free cell is left to hide the mine', () => {
+        const revealedIndices = Array.from({ length: 25 }, (_, index) => index).filter(
+          (index) => index !== 20,
+        )
+        const result = pressCell(playingState({ revealedIndices }), 20, 'win', () => 0)
+
+        expect(result.outcome).toBe('mine')
+        expect(result.state.phase).toBe('exploded')
+      })
+
+      it('does not consume the arm on an ignored press', () => {
+        const state = playingState({ revealedIndices: [1] })
+
+        expect(pressCell(state, 1, 'lose').outcome).toBe('ignored')
+        expect(pressCell(state, 99, 'lose').outcome).toBe('ignored')
+        expect(pressCell({ ...state, phase: 'exploded' }, 2, 'lose').outcome).toBe('ignored')
+      })
+
+      it('behaves exactly as before when no outcome is forced', () => {
+        const state = playingState()
+
+        expect(pressCell(state, 20)).toEqual(pressCell(state, 20, undefined))
+        expect(pressCell(state, 3)).toEqual(pressCell(state, 3, undefined))
+        expect(pressCell(state, 20).outcome).toBe('mine')
+        expect(pressCell(state, 3).outcome).toBe('safe')
+      })
     })
   })
 
