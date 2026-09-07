@@ -6,17 +6,58 @@ import sharp from 'sharp'
 const rootDir = fileURLToPath(new URL('..', import.meta.url))
 const sourceDir = join(rootDir, 'assets', 'source')
 
+/**
+ * Android crops a maskable icon to a circle 80% across. On the full-bleed artwork that beheads the
+ * crocodile and eats the wheel, the dice and both mug handles, so the maskable variant is derived
+ * here rather than kept as a second hand-made file that drifts out of sync.
+ *
+ * Insetting the art alone is not enough: a shrunken square shows its own edge as a hard line, on
+ * flat padding and on a blurred backdrop alike. So the art is feathered and laid over a blurred,
+ * darkened copy of itself, which continues the glow outward with nothing to contrast against.
+ */
+const MASKABLE_INPUT = 'icon-maskable'
+const MASKABLE_SIZE = 1024
+const MASKABLE_ART_SCALE = 0.7
+
+async function buildMaskableSource(iconPath) {
+  const inner = Math.round(MASKABLE_SIZE * MASKABLE_ART_SCALE)
+  const offset = Math.round((MASKABLE_SIZE - inner) / 2)
+
+  const backdrop = await sharp(iconPath)
+    .resize(MASKABLE_SIZE, MASKABLE_SIZE)
+    .blur(30)
+    .modulate({ brightness: 0.62 })
+    .png()
+    .toBuffer()
+
+  const feather = Buffer.from(
+    `<svg width="${inner}" height="${inner}"><rect x="26" y="26" width="${inner - 52}" height="${inner - 52}" rx="70" fill="#fff"/></svg>`,
+  )
+  const softEdge = await sharp(feather).blur(18).png().toBuffer()
+  const art = await sharp(
+    await sharp(iconPath).resize(inner, inner).ensureAlpha().png().toBuffer(),
+  )
+    .composite([{ input: softEdge, blend: 'dest-in' }])
+    .png()
+    .toBuffer()
+
+  return sharp(backdrop)
+    .composite([{ input: art, left: offset, top: offset }])
+    .png()
+    .toBuffer()
+}
+
 const outputs = [
-  { input: 'icon.svg', output: 'public/icons/icon-192.png', width: 192, height: 192 },
-  { input: 'icon.svg', output: 'public/icons/icon-512.png', width: 512, height: 512 },
+  { input: 'icon.webp', output: 'public/icons/icon-192.png', width: 192, height: 192 },
+  { input: 'icon.webp', output: 'public/icons/icon-512.png', width: 512, height: 512 },
   {
-    input: 'icon-maskable.svg',
+    input: MASKABLE_INPUT,
     output: 'public/icons/icon-maskable-512.png',
     width: 512,
     height: 512,
   },
   {
-    input: 'icon.svg',
+    input: 'icon.webp',
     output: 'public/icons/apple-touch-icon.png',
     width: 180,
     height: 180,
@@ -33,17 +74,19 @@ const outputs = [
   { input: 'og-wheel.svg', output: 'public/og/og-wheel.png', width: 1200, height: 630 },
   { input: 'og-slot.svg', output: 'public/og/og-slot.png', width: 1200, height: 630 },
   { input: 'og-cards.svg', output: 'public/og/og-cards.png', width: 1200, height: 630 },
-  { input: 'icon.svg', output: 'assets/icon-only.png', width: 1024, height: 1024 },
+  { input: 'icon.webp', output: 'assets/icon-only.png', width: 1024, height: 1024 },
   { input: 'splash.svg', output: 'assets/splash.png', width: 2732, height: 2732 },
 ]
 
+const maskableSource = await buildMaskableSource(join(sourceDir, 'icon.webp'))
+
 for (const item of outputs) {
-  const inputPath = join(sourceDir, item.input)
   const outputPath = join(rootDir, item.output)
   mkdirSync(dirname(outputPath), { recursive: true })
 
-  const svg = readFileSync(inputPath)
-  await sharp(svg).resize(item.width, item.height).png().toFile(outputPath)
+  const source =
+    item.input === MASKABLE_INPUT ? maskableSource : readFileSync(join(sourceDir, item.input))
+  await sharp(source).resize(item.width, item.height).png().toFile(outputPath)
   console.log(`Generated ${item.output}`)
 }
 

@@ -14,7 +14,7 @@
     "generate:assets": "node scripts/generate-assets.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:static-seo": "tsx --tsconfig tsconfig.node.json scripts/generate-static-seo.ts",
-    "generate:cap-assets": "npx capacitor-assets generate --assetPath assets --iconBackgroundColor \"#1a1a2e\" --splashBackgroundColor \"#1a1a2e\"",
+    "generate:cap-assets": "npx capacitor-assets generate --assetPath assets --iconBackgroundColor \"#01070f\" --splashBackgroundColor \"#01070f\"",
     "prebuild": "npm run generate:assets && npm run generate:sounds && npm run generate:static-seo",
     "build": "vue-tsc --noEmit -p tsconfig.app.json && vite-ssg build",
     "verify:dist": "tsx --tsconfig tsconfig.node.json scripts/verify-dist.ts",

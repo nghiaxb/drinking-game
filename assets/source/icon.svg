@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Drinking Games icon">
-  <rect width="512" height="512" rx="96" fill="#206bc4"/>
-  <circle cx="256" cy="256" r="148" fill="#ffffff" opacity="0.12"/>
-  <path d="M160 300c24-72 168-72 192 0" stroke="#ffffff" stroke-width="28" stroke-linecap="round" fill="none"/>
-  <circle cx="196" cy="220" r="22" fill="#ffffff"/>
-  <circle cx="316" cy="220" r="22" fill="#ffffff"/>
-  <text x="256" y="392" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="56" font-weight="700" fill="#ffffff">DG</text>
-</svg>

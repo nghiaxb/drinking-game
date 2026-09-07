@@ -1,4 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#206bc4"/>
-  <text x="16" y="22" text-anchor="middle" font-size="16" fill="white"><{</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Drinking Games">
+  <!--
+    Deliberately simpler than the app icon. A favicon renders at 16px, where the icon's crocodile,
+    wheel, cards and dice collapse into an amber smudge — so this keeps one shape: a beer mug.
+    The foam has to dome up over the rim, not float above it: separated blobs read as steam, which
+    turns the whole thing into a cup of coffee.
+  -->
+  <rect width="32" height="32" rx="7" fill="#01070f" />
+  <path
+    d="M23.5 14.5h1.8a3.1 3.1 0 0 1 0 6.2h-1.8"
+    stroke="#fff9f0"
+    stroke-width="2.6"
+    fill="none"
+    stroke-linecap="round"
+  />
+  <path d="M7 12h15v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#f4a261" />
+  <path
+    d="M7 12.5c0-2 1.6-2.6 2.6-1.8 1-1.9 3-1.9 3.9-.4 1-1.7 3.1-1.6 3.9-.1 1.1-1.2 3.1-.8 3.4 1 .9.1 1.2.8 1.2 1.3z"
+    fill="#fff9f0"
+  />
+  <path d="M7 12h15v1.6H7z" fill="#fff9f0" />
 </svg>
