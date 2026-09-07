@@ -73,7 +73,7 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
     }
 
     if (message.t === 'arm') {
-      armed.value = { game: message.game, outcome: message.outcome }
+      armed.value = { game: message.game, outcome: message.outcome, mode: message.mode }
       return
     }
     if (message.t === 'disarm') {
@@ -110,7 +110,7 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
     gameOnline: readonly(gameOnline),
     connected: readonly(connected),
     arm(next) {
-      send({ t: 'arm', game: next.game, outcome: next.outcome })
+      send({ t: 'arm', game: next.game, outcome: next.outcome, mode: next.mode })
     },
     disarm() {
       send({ t: 'disarm' })

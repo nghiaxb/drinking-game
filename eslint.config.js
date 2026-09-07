@@ -13,6 +13,8 @@ export default tseslint.config(
       'playwright-report/**',
       'blob-report/**',
       'scripts/**',
+      // Miniflare's local dev scratch bundles — generated, and not in any tsconfig project.
+      '.wrangler/**',
       // Capacitor native shells + synced web assets (sw/workbox/bundles) — not app TS/Vue source.
       'android/**',
       'ios/**',

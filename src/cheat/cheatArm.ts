@@ -20,7 +20,8 @@ export function createCheatArmSource(
       return pending?.outcome
     },
     settle(landed) {
-      if (pending && landed) {
+      // Only a one-shot is spent by the press; a sticky arm keeps firing until it is turned off.
+      if (pending && landed && pending.mode === 'once') {
         consume()
       }
       pending = null

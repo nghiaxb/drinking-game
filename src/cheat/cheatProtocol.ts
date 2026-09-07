@@ -1,15 +1,16 @@
-import type { ArmedCheat, CheatGameId, ForcedOutcome } from './cheatTypes'
+import type { ArmedCheat, CheatGameId, CheatMode, ForcedOutcome } from './cheatTypes'
 
 export type SocketRole = 'game' | 'admin'
 
 export type CheatMessage =
-  | { t: 'arm'; game: CheatGameId; outcome: ForcedOutcome }
+  | { t: 'arm'; game: CheatGameId; outcome: ForcedOutcome; mode: CheatMode }
   | { t: 'disarm' }
   | { t: 'consumed' }
   | { t: 'state'; gameOnline: boolean; armed: ArmedCheat | null }
 
 const GAME_IDS: readonly string[] = ['crocodile', 'mine']
 const OUTCOMES: readonly string[] = ['lose', 'win']
+const MODES: readonly string[] = ['once', 'sticky']
 
 export function parseSocketRole(raw: string | null): SocketRole | null {
   return raw === 'game' || raw === 'admin' ? raw : null
@@ -28,7 +29,20 @@ function parseArmed(raw: unknown): ArmedCheat | null {
     return null
   }
 
-  return { game: game as CheatGameId, outcome: outcome as ForcedOutcome }
+  /*
+   * Mode is tolerated as absent, not required: a worker deployed before modes existed relays an
+   * arm without it. Defaulting to 'once' degrades the trick instead of dropping the frame.
+   */
+  const { mode } = raw as Record<string, unknown>
+  if (mode !== undefined && (typeof mode !== 'string' || !MODES.includes(mode))) {
+    return null
+  }
+
+  return {
+    game: game as CheatGameId,
+    outcome: outcome as ForcedOutcome,
+    mode: (mode as CheatMode | undefined) ?? 'once',
+  }
 }
 
 /** Every socket frame is untrusted input; a bad frame is dropped, never thrown. */

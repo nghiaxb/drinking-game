@@ -58,11 +58,12 @@ export function reduceRoom(state: RoomState, event: RoomEvent): RoomTransition {
   const { message, role } = event
 
   if (message.t === 'arm' && role === 'admin') {
-    const next: RoomState = { ...state, armed: { game: message.game, outcome: message.outcome } }
+    const armed = { game: message.game, outcome: message.outcome, mode: message.mode }
+    const next: RoomState = { ...state, armed }
     return {
       state: next,
       effects: [
-        { to: 'game', message: { t: 'arm', game: message.game, outcome: message.outcome } },
+        { to: 'game', message: { t: 'arm', ...armed } },
         { to: 'admin', message: stateFrame(next) },
       ],
     }
@@ -79,7 +80,8 @@ export function reduceRoom(state: RoomState, event: RoomEvent): RoomTransition {
     }
   }
 
-  if (message.t === 'consumed' && role === 'game') {
+  // A sticky arm outlives the press that used it; only a one-shot is spent.
+  if (message.t === 'consumed' && role === 'game' && state.armed?.mode === 'once') {
     const next: RoomState = { ...state, armed: null }
     return { state: next, effects: [{ to: 'admin', message: stateFrame(next) }] }
   }

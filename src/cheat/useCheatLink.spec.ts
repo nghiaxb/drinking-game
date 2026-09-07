@@ -42,8 +42,8 @@ describe('createCheatLink', () => {
     fake.emit('open')
     expect(link.connected.value).toBe(true)
 
-    fake.emit('message', '{"t":"arm","game":"mine","outcome":"lose"}')
-    expect(link.armed.value).toEqual({ game: 'mine', outcome: 'lose' })
+    fake.emit('message', '{"t":"arm","game":"mine","outcome":"lose","mode":"sticky"}')
+    expect(link.armed.value).toEqual({ game: 'mine', outcome: 'lose', mode: 'sticky' })
 
     fake.emit('message', '{"t":"disarm"}')
     expect(link.armed.value).toBeNull()
@@ -76,7 +76,7 @@ describe('createCheatLink', () => {
     )
 
     expect(link.gameOnline.value).toBe(true)
-    expect(link.armed.value).toEqual({ game: 'crocodile', outcome: 'win' })
+    expect(link.armed.value).toEqual({ game: 'crocodile', outcome: 'win', mode: 'once' })
   })
 
   it('serialises the admin commands', () => {
@@ -88,10 +88,13 @@ describe('createCheatLink', () => {
     })
 
     fake.emit('open')
-    link.arm({ game: 'mine', outcome: 'win' })
+    link.arm({ game: 'mine', outcome: 'win', mode: 'sticky' })
     link.disarm()
 
-    expect(fake.sent).toEqual(['{"t":"arm","game":"mine","outcome":"win"}', '{"t":"disarm"}'])
+    expect(fake.sent).toEqual([
+      '{"t":"arm","game":"mine","outcome":"win","mode":"sticky"}',
+      '{"t":"disarm"}',
+    ])
   })
 
   it('clears the local arm as soon as it is consumed, before the server confirms', () => {
@@ -103,7 +106,7 @@ describe('createCheatLink', () => {
     })
 
     fake.emit('open')
-    fake.emit('message', '{"t":"arm","game":"mine","outcome":"lose"}')
+    fake.emit('message', '{"t":"arm","game":"mine","outcome":"lose","mode":"once"}')
     link.consume()
 
     expect(link.armed.value).toBeNull()
@@ -118,7 +121,7 @@ describe('createCheatLink', () => {
       createSocket: () => fake.socket,
     })
 
-    expect(() => link.arm({ game: 'mine', outcome: 'lose' })).not.toThrow()
+    expect(() => link.arm({ game: 'mine', outcome: 'lose', mode: 'once' })).not.toThrow()
     expect(fake.sent).toEqual([])
   })
 

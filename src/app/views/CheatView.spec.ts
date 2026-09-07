@@ -12,6 +12,16 @@ describe('CheatView', () => {
     localStorage.clear()
   })
 
+  async function adminView() {
+    const wrapper = mount(CheatView)
+    await flushPromises()
+    await wrapper.find('[data-testid="cheat-secret-input"]').setValue('nhaucc')
+    await wrapper.find('[data-testid="cheat-role-admin"]').setValue(true)
+    await wrapper.find('[data-testid="cheat-save"]').trigger('click')
+    await flushPromises()
+    return wrapper
+  }
+
   it('asks for a secret and a role before showing any control', async () => {
     const wrapper = mount(CheatView)
     await flushPromises()
@@ -72,5 +82,60 @@ describe('CheatView', () => {
     await flushPromises()
 
     expect(second.find('[data-testid="cheat-arm-mine-lose"]').exists()).toBe(true)
+  })
+  it('shows the mode selector and defaults to once', async () => {
+    const wrapper = await adminView()
+
+    expect(wrapper.find('[data-testid="cheat-mode-once"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="cheat-mode-sticky"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="cheat-mode-once"]').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.get('[data-testid="cheat-mode-sticky"]').attributes('aria-pressed')).toBe(
+      'false',
+    )
+  })
+
+  it('reports that nothing is armed and that presence is separate', async () => {
+    const wrapper = await adminView()
+    const status = wrapper.get('[data-testid="cheat-status"]').text()
+
+    expect(status).toContain('Chưa gài')
+    expect(status).toContain('chưa online')
+  })
+
+  it('marks the active arm button so a tap is visibly acknowledged', async () => {
+    const wrapper = await adminView()
+    const button = wrapper.get('[data-testid="cheat-arm-mine-lose"]')
+
+    expect(button.attributes('aria-pressed')).toBe('false')
+
+    await button.trigger('click')
+    await flushPromises()
+
+    expect(button.attributes('aria-pressed')).toBe('true')
+  })
+
+  it('turns the arm off when the active button is tapped again', async () => {
+    const wrapper = await adminView()
+    const button = wrapper.get('[data-testid="cheat-arm-crocodile-win"]')
+
+    await button.trigger('click')
+    await flushPromises()
+    expect(button.attributes('aria-pressed')).toBe('true')
+
+    await button.trigger('click')
+    await flushPromises()
+    expect(button.attributes('aria-pressed')).toBe('false')
+  })
+
+  it('disables the off button until something is armed', async () => {
+    const wrapper = await adminView()
+    const off = wrapper.get('[data-testid="cheat-disarm"]')
+
+    expect(off.attributes('disabled')).toBeDefined()
+
+    await wrapper.get('[data-testid="cheat-arm-mine-lose"]').trigger('click')
+    await flushPromises()
+
+    expect(off.attributes('disabled')).toBeUndefined()
   })
 })

@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { INITIAL_ROOM_STATE, reduceRoom } from './roomReducer'
 import type { RoomState } from './roomReducer'
 
-const ARMED = { game: 'crocodile', outcome: 'lose' } as const
+const ARMED = { game: 'crocodile', outcome: 'lose', mode: 'once' } as const
+const STICKY = { game: 'crocodile', outcome: 'lose', mode: 'sticky' } as const
 
 describe('reduceRoom', () => {
   it('starts with nothing armed and no game device', () => {
@@ -68,7 +69,17 @@ describe('reduceRoom', () => {
     ])
   })
 
-  it('clears the arm when the game device reports it was consumed', () => {
+  it('keeps a sticky arm when the game device reports a press', () => {
+    const result = reduceRoom(
+      { armed: STICKY, gameSocketCount: 1 },
+      { type: 'message', role: 'game', message: { t: 'consumed' } },
+    )
+
+    expect(result.state.armed).toEqual(STICKY)
+    expect(result.effects).toEqual([])
+  })
+
+  it('clears a once arm when the game device reports it was consumed', () => {
     const result = reduceRoom(
       { armed: ARMED, gameSocketCount: 1 },
       { type: 'message', role: 'game', message: { t: 'consumed' } },
