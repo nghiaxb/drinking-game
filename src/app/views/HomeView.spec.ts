@@ -6,7 +6,7 @@ import { HOME_GAME_CARDS } from '@/app/homeGames'
 import { GAME_ROUTE_PATHS } from '@/router/routes'
 
 describe('HomeView', () => {
-  it('renders five game cards with correct labels, emoji and routes', () => {
+  it('renders four game cards with correct labels, emoji and routes', () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [{ path: '/', component: HomeView }],
@@ -17,7 +17,7 @@ describe('HomeView', () => {
     })
 
     expect(wrapper.find('[data-testid="home-view"]').exists()).toBe(true)
-    expect(HOME_GAME_CARDS).toHaveLength(5)
+    expect(HOME_GAME_CARDS).toHaveLength(4)
 
     for (const game of HOME_GAME_CARDS) {
       const card = wrapper.find(`[data-testid="home-game-${game.id}"]`)

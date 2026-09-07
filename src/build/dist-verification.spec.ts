@@ -116,7 +116,6 @@ describe('dist-verification helpers', () => {
       { relativePath: 'assets/CrocodileView-abc123.js', rawBytes: 1000, gzipBytes: 400 },
       { relativePath: 'assets/MineView-def456.js', rawBytes: 1000, gzipBytes: 400 },
       { relativePath: 'assets/WheelView-ghi789.js', rawBytes: 1000, gzipBytes: 400 },
-      { relativePath: 'assets/SlotView-jkl012.js', rawBytes: 1000, gzipBytes: 400 },
       { relativePath: 'assets/CardsView-mno345.js', rawBytes: 1000, gzipBytes: 400 },
     ]
 
@@ -158,6 +157,6 @@ describe('dist-verification helpers', () => {
 
   it('documents required sound and OG image asset paths', () => {
     expect(EXPECTED_SOUND_FILES).toHaveLength(7)
-    expect(EXPECTED_OG_IMAGES).toHaveLength(6)
+    expect(EXPECTED_OG_IMAGES).toHaveLength(5)
   })
 })

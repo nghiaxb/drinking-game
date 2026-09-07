@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Slot">
-  <rect width="1200" height="630" fill="#be123c"/>
-  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Slot</text>
-  <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#ffe4e6">Mini game - Drinking Games</text>
-  <rect x="860" y="250" width="90" height="120" rx="16" fill="#ffffff" opacity="0.9"/>
-  <rect x="970" y="250" width="90" height="120" rx="16" fill="#ffffff" opacity="0.9"/>
-  <rect x="1080" y="250" width="90" height="120" rx="16" fill="#ffffff" opacity="0.9"/>
-  <rect x="930" y="390" width="180" height="24" rx="12" fill="#ffffff" opacity="0.75"/>
-</svg>

@@ -23,7 +23,7 @@ export const PWA_MANIFEST: PwaManifestConfig = {
   name: 'Drinking Games — Trò chơi nhậu offline',
   short_name: 'Drinking Games',
   description:
-    'Năm mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay, Kéo cần và Bốc bài. Cài PWA và chơi không cần mạng.',
+    'Bốn mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay và Bốc bài. Cài PWA và chơi không cần mạng.',
   lang: 'vi',
   dir: 'ltr',
   theme_color: PWA_THEME_COLOR,

@@ -32,13 +32,6 @@ export const HOME_GAME_CARDS: HomeGameCard[] = [
     accent: 'amber',
   },
   {
-    id: 'slot',
-    label: 'Kéo cần',
-    emoji: '🎰',
-    path: GAME_ROUTE_PATHS.slot,
-    accent: 'coral',
-  },
-  {
     id: 'cards',
     label: 'Bốc bài',
     emoji: '🃏',

@@ -34,10 +34,10 @@ const APP_SEO = {
   home: {
     title: 'Drinking Games — Trò chơi nhậu offline',
     description:
-      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay, Kéo cần và Bốc bài. Chơi ngay trên web hoặc cài PWA.',
+      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay và Bốc bài. Chơi ngay trên web hoặc cài PWA.',
     ogTitle: 'Drinking Games — Chơi offline mọi lúc',
     ogDescription:
-      'Năm trò chơi nhậu vui nhộn, tối ưu mobile, cài đặt như app và chơi offline sau lần tải đầu.',
+      'Bốn trò chơi nhậu vui nhộn, tối ưu mobile, cài đặt như app và chơi offline sau lần tải đầu.',
     ogImage: '/og/og-home.png',
     jsonLdType: 'WebApplication' as const,
   },
@@ -65,14 +65,6 @@ const APP_SEO = {
     ogTitle: 'Vòng quay — Mini game nhậu',
     ogDescription: 'Tùy chỉnh danh sách và quay vòng may rủi cho cả nhóm.',
     ogImage: '/og/og-wheel.png',
-    jsonLdType: 'VideoGame' as const,
-  },
-  slot: {
-    title: 'Kéo cần — Drinking Games',
-    description: 'Mini game Kéo cần: quay ba guồng, nhận phần thưởng hoặc thử thách uống.',
-    ogTitle: 'Kéo cần — Mini game nhậu',
-    ogDescription: 'Kéo cần may mắn với hiệu ứng reel và phần thưởng bất ngờ.',
-    ogImage: '/og/og-slot.png',
     jsonLdType: 'VideoGame' as const,
   },
   cards: {
@@ -128,13 +120,6 @@ export const APP_ROUTES: AppRouteDefinition[] = [
     gameId: 'wheel',
     seo: APP_SEO.wheel,
     component: () => import('@/games/wheel/WheelView.vue'),
-  },
-  {
-    path: GAME_ROUTE_PATHS.slot,
-    name: 'game-slot',
-    gameId: 'slot',
-    seo: APP_SEO.slot,
-    component: () => import('@/games/slot/SlotView.vue'),
   },
   {
     path: GAME_ROUTE_PATHS.cards,

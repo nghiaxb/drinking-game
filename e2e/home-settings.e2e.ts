@@ -14,7 +14,7 @@ test.describe('home and settings', () => {
     await page.goto('/')
 
     await expect(page.getByTestId('home-view')).toBeVisible()
-    expect(HOME_GAME_CARDS).toHaveLength(5)
+    expect(HOME_GAME_CARDS).toHaveLength(4)
 
     for (const game of HOME_GAME_CARDS) {
       const card = page.getByTestId(`home-game-${game.id}`)

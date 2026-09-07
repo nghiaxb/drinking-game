@@ -25,7 +25,6 @@ export const EXPECTED_OG_IMAGES = [
   'og/og-crocodile.png',
   'og/og-mine.png',
   'og/og-wheel.png',
-  'og/og-slot.png',
   'og/og-cards.png',
 ] as const
 
@@ -53,7 +52,6 @@ const GAME_VIEW_CHUNK_PREFIX: Record<GameRouteId, string> = {
   crocodile: 'CrocodileView',
   mine: 'MineView',
   wheel: 'WheelView',
-  slot: 'SlotView',
   cards: 'CardsView',
 }
 

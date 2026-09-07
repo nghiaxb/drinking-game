@@ -20,20 +20,20 @@ type LazyRouteComponent = () => Promise<{ default: unknown }>
 
 describe('routes', () => {
 
-  it('declares exactly six prerender paths via routePaths re-export', () => {
+  it('declares exactly five prerender paths via routePaths re-export', () => {
 
-    expect(PRERENDER_PATHS).toHaveLength(6)
+    expect(PRERENDER_PATHS).toHaveLength(5)
 
   })
 
 
 
-  it('registers home, five games, and the three noIndex utility routes', () => {
+  it('registers home, four games, and the three noIndex utility routes', () => {
 
     // Derived, not hardcoded: adding a prerendered route should not need this number edited.
     expect(APP_ROUTES).toHaveLength(PRERENDER_PATHS.length + 3)
 
-    expect(APP_ROUTES.slice(0, 6).map((route) => route.path)).toEqual([...PRERENDER_PATHS])
+    expect(APP_ROUTES.slice(0, PRERENDER_PATHS.length).map((route) => route.path)).toEqual([...PRERENDER_PATHS])
 
     expect(APP_ROUTES.find((route) => route.name === 'settings')?.path).toBe('/settings')
 
@@ -71,7 +71,6 @@ describe('routes', () => {
 
       'wheel',
 
-      'slot',
 
       'cards',
 

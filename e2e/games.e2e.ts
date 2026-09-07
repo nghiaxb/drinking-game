@@ -97,24 +97,6 @@ test('wheel: reduced-motion spin, editor add id persist reload and reset', async
   guard.dispose()
 })
 
-test('slot: reduced-motion spin to result, Kéo lại starts another spin', async ({ page }) => {
-  const guard = attachConsoleGuard(page)
-  await emulateReducedMotion(page)
-  await prepareGamePage(page, '/games/slot')
-  await expect(page.getByTestId('slot-view')).toBeVisible()
-
-  await page.getByTestId('slot-lever').click()
-  await expect(page.getByTestId('slot-result')).toBeVisible()
-
-  await page.getByTestId('slot-replay').click()
-  await expect(page.getByTestId('slot-lever')).toBeDisabled()
-  await expect(page.getByTestId('slot-lever')).toBeEnabled()
-  await expect(page.getByTestId('slot-result')).toBeVisible()
-
-  guard.assertClean()
-  guard.dispose()
-})
-
 test('cards: draw, deck/filter/reshuffle, keyboard on draw button', async ({ page }) => {
   const guard = attachConsoleGuard(page)
   await emulateReducedMotion(page)

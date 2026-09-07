@@ -1,16 +1,15 @@
 # Drinking Games
 
-Bộ sưu tập **5 mini game nhậu offline** trên **một codebase** duy nhất, triển khai Web, PWA, Android và iOS qua Capacitor.
+Bộ sưu tập **4 mini game nhậu offline** trên **một codebase** duy nhất, triển khai Web, PWA, Android và iOS qua Capacitor.
 
 | Game | Route |
 |------|-------|
 | Răng cá sấu | `/games/crocodile` |
-| Mìn | `/games/mine` |
+| Bắt ếch | `/games/mine` |
 | Vòng quay | `/games/wheel` |
-| Kéo cần | `/games/slot` |
 | Bốc bài | `/games/cards` |
 
-**Phạm vi tính năng:** client-only cho toàn bộ 5 game — không tài khoản, không đồng bộ đám mây, dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
+**Phạm vi tính năng:** client-only cho toàn bộ 4 game — không tài khoản, không đồng bộ đám mây, dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
 
 Ngoại lệ duy nhất là kênh điều khiển ở `/x` (Cloudflare Worker + Durable Object, xem `worker/`). Nó **tắt hoàn toàn** khi `VITE_CHEAT_SOCKET_URL` rỗng hoặc máy chưa cài mã, nên bản mặc định không mở kết nối nào.
 
@@ -173,7 +172,7 @@ Nguồn SVG: `assets/source/`.
 | WAV feedback | Generate bằng script (`scripts/generate-sounds.mjs`) |
 | Fredoka, Nunito | `@fontsource-variable/*` — **SIL Open Font License** |
 | Tabler Icons | `@tabler/icons-vue` — **MIT** |
-| Emoji (home cards, slot symbols) | Glyph hệ điều hành / Unicode, không bundle font emoji |
+| Emoji (home cards) | Glyph hệ điều hành / Unicode, không bundle font emoji |
 | Dependencies khác | Theo license trong `package.json` / `package-lock.json` manifests |
 
 ---
@@ -283,7 +282,7 @@ scripts/           generate-*, verify-dist, audit-build
 ## Prerender routes
 
 - `/`
-- `/games/crocodile`, `/games/mine`, `/games/wheel`, `/games/slot`, `/games/cards`
+- `/games/crocodile`, `/games/mine`, `/games/wheel`, `/games/cards`
 
 (`/settings` và 404 không prerender — SPA client-side.)
 

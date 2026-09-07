@@ -12,6 +12,7 @@ import {
   RESPONSIVE_VIEWPORTS,
   ROUTE_PRIMARY_CONTROL_SELECTORS,
 } from './helpers'
+import { HOME_GAME_CARDS } from '../src/app/homeGames'
 
 for (const viewport of RESPONSIVE_VIEWPORTS) {
   test.describe(`responsive ${viewport.label}`, () => {
@@ -43,7 +44,7 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
           await assertPrimaryControlsMinSize(page, selector!)
         } else {
           const homeCards = page.locator('[data-testid^="home-game-"]')
-          await expect(homeCards).toHaveCount(5)
+          await expect(homeCards).toHaveCount(HOME_GAME_CARDS.length)
           const cardHeight = await homeCards
             .first()
             .evaluate((element) => element.getBoundingClientRect().height)
@@ -71,15 +72,17 @@ test.describe('accessibility basics', () => {
     guard.dispose()
   })
 
-  test('reduced motion keeps slot spin controls usable', async ({ page }) => {
+  // Ported off the removed slot game: the wheel is now the only spin-to-result control, and it is
+  // the one that shortens its animation under reduced motion.
+  test('reduced motion keeps wheel spin controls usable', async ({ page }) => {
     const guard = attachConsoleGuard(page)
     await emulateReducedMotion(page)
     await page.setViewportSize({ width: 320, height: 740 })
-    await page.goto('/games/slot')
+    await page.goto('/games/wheel')
 
-    await expect(page.getByTestId('slot-lever')).toBeVisible()
-    await page.getByTestId('slot-lever').click()
-    await expect(page.getByTestId('slot-result')).toBeVisible()
+    await expect(page.getByTestId('wheel-spin-button')).toBeVisible()
+    await page.getByTestId('wheel-spin-button').click()
+    await expect(page.getByTestId('wheel-result')).toBeVisible()
     await assertNoHorizontalOverflow(page)
 
     guard.assertClean()

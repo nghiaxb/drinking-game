@@ -87,7 +87,6 @@ describe('useSettings', () => {
     const backend = createMemoryBackend({
       'drinking-games:v1:settings': JSON.stringify({ soundEnabled: false, vibrationEnabled: true }),
       'drinking-games:v1:game:wheel': '[]',
-      'drinking-games:v1:game:slot': '{"spins":1}',
     })
     const storage = createStorage({ backend, isNative: () => false })
     const settings = createSettingsManager({
