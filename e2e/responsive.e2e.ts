@@ -3,6 +3,7 @@ import {
   attachConsoleGuard,
   assertFocusVisibleKeyboard,
   assertDocumentDoesNotScroll,
+  assertNoDoubleTapZoom,
   assertNoHorizontalOverflow,
   assertPrimaryControlsMinSize,
   dismissPwaBanners,
@@ -24,6 +25,7 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         await expect(page.locator('[data-testid="app-shell"]')).toBeVisible()
         await assertNoHorizontalOverflow(page)
         await assertDocumentDoesNotScroll(page)
+        await assertNoDoubleTapZoom(page)
 
         const mainVisible = await page.evaluate(() => {
           const main = document.querySelector('main')

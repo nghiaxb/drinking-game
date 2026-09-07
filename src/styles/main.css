@@ -60,27 +60,30 @@
    */
   html {
     -webkit-text-size-adjust: 100%;
-    touch-action: manipulation;
     height: 100dvh;
     overflow: hidden;
     overscroll-behavior: none;
   }
 
   /*
-   * The rule above should already cover the page, because touch-action is intersected up the
-   * ancestor chain — but WebKit ignores the root element when deciding whether double-tap zoom is
-   * allowed, so every tappable thing has to declare it itself. `manipulation` keeps pan and
-   * pinch-zoom and only drops the double-tap gesture. Text inputs are left out on purpose: there
-   * double-tap selects a word, which is wanted.
+   * Universal on purpose. Covering only the controls left every gap between teeth and frog cells
+   * zooming on a fast double tap, because a tap that misses a control hits a plain container.
+   * Relying on the ancestor chain instead is not safe either: WebKit already ignores <html> here,
+   * so the only thing guaranteed to apply is a value on the element actually touched.
+   *
+   * `manipulation` keeps panning and pinch-zoom — it drops only the double-tap gesture.
    */
-  button,
-  a,
-  label,
-  summary,
-  [role='button'],
-  input[type='checkbox'],
-  input[type='radio'] {
+  * {
     touch-action: manipulation;
+  }
+
+  /*
+   * The one place double-tap earns its keep: it selects a word. Checkboxes and radios are not
+   * exempted — nothing is being selected there, and they are tapped in quick succession.
+   */
+  input:not([type='checkbox']):not([type='radio']),
+  textarea {
+    touch-action: auto;
   }
 
   body {

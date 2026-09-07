@@ -173,6 +173,35 @@ export async function assertDocumentDoesNotScroll(page: Page): Promise<void> {
   expect(result.unreachable, 'content unreachable inside its scroller').toEqual([])
 }
 
+/**
+ * iOS zooms on a fast double tap unless the element actually touched declares a touch-action that
+ * forbids it. Auditing only the controls was not enough: a tap landing between two teeth or two
+ * frog cells hits a plain container, and those still zoomed. So probe real touch points across the
+ * viewport and check whatever sits on top, not just the interactive elements.
+ */
+export async function assertNoDoubleTapZoom(page: Page): Promise<void> {
+  const offenders = await page.evaluate(() => {
+    const seen = new Set<string>()
+    for (let x = 6; x < window.innerWidth; x += 16) {
+      for (let y = 6; y < window.innerHeight; y += 16) {
+        const element = document.elementFromPoint(x, y)
+        if (!element || getComputedStyle(element).touchAction !== 'auto') {
+          continue
+        }
+        // A text field is the one place double-tap earns its keep: it selects a word.
+        if (element.matches('textarea, input:not([type="checkbox"]):not([type="radio"])')) {
+          continue
+        }
+        const cls = typeof element.className === 'string' ? element.className.split(/\s+/)[0] : ''
+        seen.add(element.tagName.toLowerCase() + (cls ? `.${cls}` : ''))
+      }
+    }
+    return [...seen]
+  })
+
+  expect(offenders, 'these tap targets still allow double-tap zoom').toEqual([])
+}
+
 export async function assertPrimaryControlsMinSize(
   page: Page,
   selector = PRIMARY_CONTROL_SELECTORS,
