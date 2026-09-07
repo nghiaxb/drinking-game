@@ -1,0 +1,12 @@
+name = "drinking-games-cheat"
+main = "worker/index.ts"
+compatibility_date = "2026-01-01"
+
+[[durable_objects.bindings]]
+name = "CHEAT_ROOM"
+class_name = "CheatRoom"
+
+# new_sqlite_classes, not new_classes: SQLite-backed Durable Objects are the ones on the free plan.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CheatRoom"]

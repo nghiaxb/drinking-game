@@ -10,7 +10,9 @@ Bộ sưu tập **5 mini game nhậu offline** trên **một codebase** duy nh�
 | Kéo cần | `/games/slot` |
 | Bốc bài | `/games/cards` |
 
-**Phạm vi tính năng:** client-only, không backend, không tài khoản, không đồng bộ đám mây. Dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
+**Phạm vi tính năng:** client-only cho toàn bộ 5 game — không tài khoản, không đồng bộ đám mây, dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
+
+Ngoại lệ duy nhất là kênh điều khiển ở `/x` (Cloudflare Worker + Durable Object, xem `worker/`). Nó **tắt hoàn toàn** khi `VITE_CHEAT_SOCKET_URL` rỗng hoặc máy chưa cài mã, nên bản mặc định không mở kết nối nào.
 
 ---
 

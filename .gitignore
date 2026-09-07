@@ -34,6 +34,9 @@ blob-report/
 .env.local
 .env.*.local
 
+# Cloudflare Worker local dev state (miniflare sqlite) — never commit this
+.wrangler/
+
 # Capacitor (future)
 icons/
 android/.gradle
