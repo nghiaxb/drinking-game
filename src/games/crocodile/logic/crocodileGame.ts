@@ -1,4 +1,5 @@
 import { CROCODILE_CONFIG } from '../config'
+import type { ForcedOutcome } from '@/cheat/cheatTypes'
 import type { CrocodileGameState, PressToothResult } from '../types'
 
 export type RandomSource = () => number
@@ -49,7 +50,34 @@ export function isToothDisabled(state: CrocodileGameState, toothIndex: number): 
   return state.pressedIndices.includes(toothIndex)
 }
 
-export function pressTooth(state: CrocodileGameState, toothIndex: number): PressToothResult {
+/** Uniform pick among teeth that are neither pressed nor the excluded one; null when none exist. */
+function pickTrapRelocation(
+  state: CrocodileGameState,
+  excludedIndex: number,
+  rng: RandomSource,
+): number | null {
+  const candidates: number[] = []
+  for (let index = 0; index < state.toothCount; index += 1) {
+    if (index !== excludedIndex && !state.pressedIndices.includes(index)) {
+      candidates.push(index)
+    }
+  }
+
+  if (candidates.length === 0) {
+    return null
+  }
+
+  // clampTrapIndex also absorbs a non-finite rng, which the rest of this module guards against too.
+  const pick = clampTrapIndex(Math.floor(rng() * candidates.length), candidates.length)
+  return candidates[pick] ?? null
+}
+
+export function pressTooth(
+  state: CrocodileGameState,
+  toothIndex: number,
+  forced?: ForcedOutcome,
+  rng: RandomSource = Math.random,
+): PressToothResult {
   if (!isValidToothIndex(toothIndex, state.toothCount)) {
     return { state, outcome: 'ignored' }
   }
@@ -59,6 +87,20 @@ export function pressTooth(state: CrocodileGameState, toothIndex: number): Press
   }
 
   const pressedIndices = [...state.pressedIndices, toothIndex]
+
+  if (forced === 'lose') {
+    return {
+      state: { ...state, phase: 'bitten', trapIndex: toothIndex, pressedIndices },
+      outcome: 'trap',
+    }
+  }
+
+  if (forced === 'win' && toothIndex === state.trapIndex) {
+    const relocated = pickTrapRelocation(state, toothIndex, rng)
+    if (relocated !== null) {
+      return { state: { ...state, trapIndex: relocated, pressedIndices }, outcome: 'safe' }
+    }
+  }
 
   if (toothIndex === state.trapIndex) {
     return {

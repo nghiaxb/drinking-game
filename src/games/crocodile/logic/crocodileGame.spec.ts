@@ -111,6 +111,64 @@ describe('crocodileGame', () => {
       expect(again.outcome).toBe('ignored')
       expect(again.state).toEqual(bitten.state)
     })
+
+    describe('forced outcomes', () => {
+      it('makes the pressed tooth the trap when forced to lose', () => {
+        const initial = { ...createInitialState(() => 0), trapIndex: 9 }
+        const result = pressTooth(initial, 3, 'lose')
+
+        expect(result.outcome).toBe('trap')
+        expect(result.state.phase).toBe('bitten')
+        expect(result.state.trapIndex).toBe(3)
+        expect(result.state.pressedIndices).toEqual([3])
+      })
+
+      it('relocates the trap to an unpressed tooth when forced to win on it', () => {
+        const initial = { ...createInitialState(() => 0), trapIndex: 0, pressedIndices: [5] }
+        const result = pressTooth(initial, 0, 'win', () => 0)
+
+        expect(result.outcome).toBe('safe')
+        expect(result.state.phase).toBe('playing')
+        expect(result.state.trapIndex).not.toBe(0)
+        expect(result.state.pressedIndices).not.toContain(result.state.trapIndex)
+      })
+
+      it('leaves a safe tooth untouched when forced to win off the trap', () => {
+        const initial = { ...createInitialState(() => 0), trapIndex: 7 }
+        const result = pressTooth(initial, 2, 'win', () => 0)
+
+        expect(result.outcome).toBe('safe')
+        expect(result.state.trapIndex).toBe(7)
+      })
+
+      it('cannot rescue when every other tooth is already pressed', () => {
+        const pressedIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        const initial = { ...createInitialState(() => 0), trapIndex: 0, pressedIndices }
+        const result = pressTooth(initial, 0, 'win', () => 0)
+
+        expect(result.outcome).toBe('trap')
+        expect(result.state.phase).toBe('bitten')
+      })
+
+      it('does not consume the arm on an ignored press', () => {
+        const initial = { ...createInitialState(() => 0), trapIndex: 4, pressedIndices: [2] }
+
+        expect(pressTooth(initial, 2, 'lose').outcome).toBe('ignored')
+        expect(pressTooth(initial, 99, 'lose').outcome).toBe('ignored')
+        expect(pressTooth({ ...initial, phase: 'bitten' as const }, 5, 'lose').outcome).toBe(
+          'ignored',
+        )
+      })
+
+      it('behaves exactly as before when no outcome is forced', () => {
+        const initial = { ...createInitialState(() => 0), trapIndex: 4 }
+
+        expect(pressTooth(initial, 4)).toEqual(pressTooth(initial, 4, undefined))
+        expect(pressTooth(initial, 1)).toEqual(pressTooth(initial, 1, undefined))
+        expect(pressTooth(initial, 4).outcome).toBe('trap')
+        expect(pressTooth(initial, 1).outcome).toBe('safe')
+      })
+    })
   })
 
   describe('resetGame', () => {
