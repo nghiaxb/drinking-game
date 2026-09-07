@@ -151,6 +151,18 @@ export const APP_ROUTES: AppRouteDefinition[] = [
     component: () => import('@/app/views/SettingsView.vue'),
   },
   {
+    /*
+     * Hidden control page. Reuses the not-found SEO block on purpose: it is noIndex, so the
+     * metadata is never indexed, and a hidden page does not warrant its own copy. Deliberately
+     * absent from PRERENDER_PATHS — public/_redirects already serves the SPA shell, like /settings.
+     */
+    path: '/x',
+    name: 'cheat',
+    seo: APP_SEO.notFound,
+    noIndex: true,
+    component: () => import('@/app/views/CheatView.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     seo: APP_SEO.notFound,

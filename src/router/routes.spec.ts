@@ -28,13 +28,16 @@ describe('routes', () => {
 
 
 
-  it('registers home, five games, settings and not-found routes', () => {
+  it('registers home, five games, and the three noIndex utility routes', () => {
 
-    expect(APP_ROUTES).toHaveLength(8)
+    // Derived, not hardcoded: adding a prerendered route should not need this number edited.
+    expect(APP_ROUTES).toHaveLength(PRERENDER_PATHS.length + 3)
 
     expect(APP_ROUTES.slice(0, 6).map((route) => route.path)).toEqual([...PRERENDER_PATHS])
 
     expect(APP_ROUTES.find((route) => route.name === 'settings')?.path).toBe('/settings')
+
+    expect(APP_ROUTES.find((route) => route.name === 'cheat')?.path).toBe('/x')
 
     expect(APP_ROUTES.find((route) => route.name === 'not-found')).toBeDefined()
 
@@ -42,9 +45,11 @@ describe('routes', () => {
 
 
 
-  it('marks settings and not-found as noindex utility routes', () => {
+  it('marks settings, cheat and not-found as noindex utility routes', () => {
 
     expect(getRouteByPath('/settings')?.noIndex).toBe(true)
+
+    expect(getRouteByPath('/x')?.noIndex).toBe(true)
 
     expect(getRouteByPath('/does-not-exist')?.noIndex).toBe(true)
 
