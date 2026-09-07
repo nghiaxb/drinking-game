@@ -97,6 +97,31 @@
         </div>
       </div>
 
+      <div class="flex flex-col gap-2">
+        <span class="font-semibold text-ink">Vòng quay</span>
+        <p
+          v-if="wheelItems.length === 0"
+          class="text-xs text-ink-muted"
+          data-testid="cheat-wheel-empty"
+        >
+          Chưa nhận được danh sách ô. Mở màn Vòng quay trên máy chơi một lần.
+        </p>
+        <div v-else class="flex flex-col gap-2">
+          <button
+            v-for="item in wheelItems"
+            :key="item.id"
+            type="button"
+            class="btn-tactile w-full justify-start"
+            :class="{ 'cheat-btn--on': isWheelActive(item.id) }"
+            :aria-pressed="isWheelActive(item.id)"
+            :data-testid="`cheat-wheel-item-${item.id}`"
+            @click="toggleWheel(item.id)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+
       <button
         type="button"
         class="btn-tactile w-full"
@@ -116,9 +141,9 @@ import { createCheatSecretStore } from '@/cheat/cheatSecret'
 import { buildCheatSocketUrl, createCheatLink, type CheatLink } from '@/cheat/useCheatLink'
 import { getCheatSocketUrl } from '@/config/site'
 import type { SocketRole } from '@/cheat/cheatProtocol'
-import type { ArmedCheat, CheatGameId, CheatMode, ForcedOutcome } from '@/cheat/cheatTypes'
+import type { ArmedCheat, CheatMode, ForcedOutcome, PressGameId } from '@/cheat/cheatTypes'
 
-const ARM_GROUPS: readonly { game: CheatGameId; label: string }[] = [
+const ARM_GROUPS: readonly { game: PressGameId; label: string }[] = [
   { game: 'crocodile', label: 'Răng cá sấu' },
   { game: 'mine', label: 'Bắt ếch' },
 ]
@@ -130,9 +155,10 @@ const MODE_OPTIONS: readonly { mode: CheatMode; label: string }[] = [
   { mode: 'once', label: '1 lần' },
   { mode: 'sticky', label: 'Liên tục' },
 ]
-const GAME_LABELS: Record<CheatGameId, string> = {
+const GAME_LABELS: Record<PressGameId | 'wheel', string> = {
   crocodile: 'Răng cá sấu',
   mine: 'Bắt ếch',
+  wheel: 'Vòng quay',
 }
 const OUTCOME_LABELS: Record<ForcedOutcome, string> = { lose: 'cho thua', win: 'cho thoát' }
 const MODE_LABELS: Record<CheatMode, string> = { once: '1 lần', sticky: 'liên tục' }
@@ -150,18 +176,25 @@ const mode = ref<CheatMode>('once')
 const desired = ref<ArmedCheat | null>(null)
 
 const confirmed = computed(() => link.value?.armed.value ?? null)
+const wheelItems = computed(() => link.value?.wheelItems.value ?? [])
 
 const modeHint = computed(() =>
   mode.value === 'once'
-    ? 'Bẫy chờ sẵn, ăn đúng một lần ấn rồi tự tắt.'
-    : 'Mọi lần ấn đều ăn, kể cả của bé, cho tới khi bấm Tắt cheat.',
+    ? 'Ăn đúng một lần ấn hoặc một lần quay, rồi tự tắt.'
+    : 'Mọi lần ấn và mọi lần quay đều ăn, kể cả của bé, cho tới khi bấm Tắt cheat.',
 )
 
 function sameArm(a: ArmedCheat | null, b: ArmedCheat | null): boolean {
   if (a === null || b === null) {
     return a === b
   }
-  return a.game === b.game && a.outcome === b.outcome && a.mode === b.mode
+  if (a.game !== b.game || a.mode !== b.mode) {
+    return false
+  }
+  if (a.game === 'wheel') {
+    return b.game === 'wheel' && a.itemId === b.itemId
+  }
+  return b.game !== 'wheel' && a.outcome === b.outcome
 }
 
 /*
@@ -176,7 +209,11 @@ const statusText = computed(() => {
   if (wanted === null) {
     armedPart = server === null ? 'Chưa gài gì' : 'Đang tắt…'
   } else {
-    const label = `${GAME_LABELS[wanted.game]} — ${OUTCOME_LABELS[wanted.outcome]} (${MODE_LABELS[wanted.mode]})`
+    const what =
+      wanted.game === 'wheel'
+        ? (wheelItems.value.find((item) => item.id === wanted.itemId)?.label ?? wanted.itemId)
+        : OUTCOME_LABELS[wanted.outcome]
+    const label = `${GAME_LABELS[wanted.game]} — ${what} (${MODE_LABELS[wanted.mode]})`
     armedPart = sameArm(wanted, server) ? `Đã gài: ${label}` : `Đang gửi: ${label}`
   }
 
@@ -202,9 +239,14 @@ watch(confirmed, (server) => {
   }
 })
 
-function isActive(game: CheatGameId, outcome: ForcedOutcome): boolean {
+function isActive(game: PressGameId, outcome: ForcedOutcome): boolean {
   const wanted = desired.value
   return wanted !== null && wanted.game === game && wanted.outcome === outcome
+}
+
+function isWheelActive(itemId: string): boolean {
+  const wanted = desired.value
+  return wanted !== null && wanted.game === 'wheel' && wanted.itemId === itemId
 }
 
 function push(next: ArmedCheat | null): void {
@@ -216,12 +258,20 @@ function push(next: ArmedCheat | null): void {
   link.value?.arm(next)
 }
 
-function toggle(game: CheatGameId, outcome: ForcedOutcome): void {
+function toggle(game: PressGameId, outcome: ForcedOutcome): void {
   if (isActive(game, outcome)) {
     push(null)
     return
   }
   push({ game, outcome, mode: mode.value })
+}
+
+function toggleWheel(itemId: string): void {
+  if (isWheelActive(itemId)) {
+    push(null)
+    return
+  }
+  push({ game: 'wheel', itemId, mode: mode.value })
 }
 
 function setMode(next: CheatMode): void {

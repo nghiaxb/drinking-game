@@ -194,7 +194,7 @@ describe('useMineGame', () => {
     const game = createMineGame({
       rng: () => 0,
       feedback: createFeedback(),
-      cheat: { takeForcedOutcome: () => 'lose', settle: () => {} },
+      cheat: { takeForcedOutcome: () => 'lose', takeForcedItem: () => undefined, settle: () => {} },
     })
 
     await game.pressCell(7)

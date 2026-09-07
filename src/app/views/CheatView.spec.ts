@@ -138,4 +138,19 @@ describe('CheatView', () => {
 
     expect(off.attributes('disabled')).toBeUndefined()
   })
+  it('explains that the wheel list has not arrived instead of showing an empty section', async () => {
+    const wrapper = await adminView()
+
+    expect(wrapper.find('[data-testid="cheat-wheel-empty"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="cheat-wheel-item-drink-50"]').exists()).toBe(false)
+  })
+
+  it('keeps the wheel section separate from the two press games', async () => {
+    const wrapper = await adminView()
+
+    // The press games use lose/win; the wheel names a segment, so it gets its own block.
+    expect(wrapper.find('[data-testid="cheat-arm-wheel-lose"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="cheat-arm-crocodile-lose"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="cheat-arm-mine-lose"]').exists()).toBe(true)
+  })
 })

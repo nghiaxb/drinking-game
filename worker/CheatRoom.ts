@@ -55,17 +55,25 @@ export class CheatRoom implements DurableObject {
   }
 
   private async load(): Promise<RoomState> {
-    const stored = await this.ctx.storage.get<Pick<RoomState, 'armed'>>(STATE_KEY)
+    const stored = await this.ctx.storage.get<Pick<RoomState, 'armed' | 'wheelItems'>>(STATE_KEY)
     // Presence is counted from live sockets, never restored from storage.
-    return { armed: stored?.armed ?? null, gameSocketCount: this.ctx.getWebSockets('game').length }
+    return {
+      armed: stored?.armed ?? null,
+      gameSocketCount: this.ctx.getWebSockets('game').length,
+      wheelItems: stored?.wheelItems ?? [],
+    }
   }
 
   private async apply(sender: WebSocket, event: RoomEvent): Promise<void> {
     const current = await this.load()
     const { state, effects } = reduceRoom(current, event)
 
-    if (state.armed !== current.armed) {
-      await this.ctx.storage.put(STATE_KEY, { armed: state.armed })
+    // Hibernation drops memory, so anything an admin needs after reconnecting has to be durable.
+    if (state.armed !== current.armed || state.wheelItems !== current.wheelItems) {
+      await this.ctx.storage.put(STATE_KEY, {
+        armed: state.armed,
+        wheelItems: state.wheelItems,
+      })
     }
 
     for (const effect of effects) {

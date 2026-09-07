@@ -1,9 +1,11 @@
 import type { CheatMessage, SocketRole } from './cheatProtocol'
-import type { ArmedCheat } from './cheatTypes'
+import type { ArmedCheat, WheelLabel } from './cheatTypes'
 
 export interface RoomState {
   armed: ArmedCheat | null
   gameSocketCount: number
+  /* Published by the game device: the wheel is user-editable, so the admin cannot guess its rows. */
+  wheelItems: WheelLabel[]
 }
 
 export type RoomEvent =
@@ -21,7 +23,7 @@ export interface RoomTransition {
   effects: readonly RoomEffect[]
 }
 
-export const INITIAL_ROOM_STATE: RoomState = { armed: null, gameSocketCount: 0 }
+export const INITIAL_ROOM_STATE: RoomState = { armed: null, gameSocketCount: 0, wheelItems: [] }
 
 function stateFrame(state: RoomState): CheatMessage {
   return { t: 'state', gameOnline: state.gameSocketCount > 0, armed: state.armed }
@@ -34,7 +36,11 @@ function stateFrame(state: RoomState): CheatMessage {
 export function reduceRoom(state: RoomState, event: RoomEvent): RoomTransition {
   if (event.type === 'connect') {
     if (event.role === 'admin') {
-      return { state, effects: [{ to: 'sender', message: stateFrame(state) }] }
+      const effects: RoomEffect[] = [{ to: 'sender', message: stateFrame(state) }]
+      if (state.wheelItems.length > 0) {
+        effects.push({ to: 'sender', message: { t: 'wheel', items: state.wheelItems } })
+      }
+      return { state, effects }
     }
 
     const next: RoomState = { ...state, gameSocketCount: state.gameSocketCount + 1 }
@@ -58,7 +64,7 @@ export function reduceRoom(state: RoomState, event: RoomEvent): RoomTransition {
   const { message, role } = event
 
   if (message.t === 'arm' && role === 'admin') {
-    const armed = { game: message.game, outcome: message.outcome, mode: message.mode }
+    const { t: _t, ...armed } = message
     const next: RoomState = { ...state, armed }
     return {
       state: next,
@@ -66,6 +72,14 @@ export function reduceRoom(state: RoomState, event: RoomEvent): RoomTransition {
         { to: 'game', message: { t: 'arm', ...armed } },
         { to: 'admin', message: stateFrame(next) },
       ],
+    }
+  }
+
+  if (message.t === 'wheel' && role === 'game') {
+    const next: RoomState = { ...state, wheelItems: message.items }
+    return {
+      state: next,
+      effects: [{ to: 'admin', message: { t: 'wheel', items: message.items } }],
     }
   }
 

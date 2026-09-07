@@ -109,8 +109,21 @@ export function computeTargetRotation(
   const center = computeSegmentCenterAngle(items, winnerId)
   const normalizedCurrent = normalizeAngle(safeCurrent)
   const delta = normalizeAngle(360 - center - normalizedCurrent)
-  const safeMinSpins = Number.isFinite(minFullSpins) && minFullSpins > 0 ? Math.floor(minFullSpins) : 0
+  const safeMinSpins =
+    Number.isFinite(minFullSpins) && minFullSpins > 0 ? Math.floor(minFullSpins) : 0
   return safeCurrent + safeMinSpins * 360 + delta
+}
+
+/** A forced id only counts while that segment is still enabled; otherwise the rng decides. */
+function resolveForcedWinnerId(
+  items: readonly WheelItem[],
+  forcedWinnerId: string | undefined,
+): string | null {
+  const wanted = forcedWinnerId?.trim()
+  if (!wanted) {
+    return null
+  }
+  return getEnabledItems(items).some((item) => item.id === wanted) ? wanted : null
 }
 
 export function computeSpinPlan(
@@ -118,8 +131,9 @@ export function computeSpinPlan(
   items: readonly WheelItem[],
   currentRotation: number,
   minFullSpins: number = WHEEL_CONFIG.minFullSpins,
+  forcedWinnerId?: string,
 ): SpinPlan {
-  const winnerId = selectWinnerId(rng, items)
+  const winnerId = resolveForcedWinnerId(items, forcedWinnerId) ?? selectWinnerId(rng, items)
   const winner = getEnabledItems(items).find((item) => item.id === winnerId)
   const targetRotation = computeTargetRotation(currentRotation, winnerId, items, minFullSpins)
 
@@ -177,9 +191,7 @@ export function generateUniqueItemId(
   excludeId: string | null = null,
 ): string {
   const base = slugifyLabel(label)
-  const used = new Set(
-    items.filter((item) => item.id !== excludeId).map((item) => item.id.trim()),
-  )
+  const used = new Set(items.filter((item) => item.id !== excludeId).map((item) => item.id.trim()))
 
   if (!used.has(base)) {
     return base

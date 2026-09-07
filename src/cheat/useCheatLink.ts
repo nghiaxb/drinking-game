@@ -1,6 +1,6 @@
 import { readonly, ref, type DeepReadonly, type Ref } from 'vue'
 import { parseCheatMessage, type CheatMessage, type SocketRole } from './cheatProtocol'
-import type { ArmedCheat } from './cheatTypes'
+import type { ArmedCheat, WheelLabel } from './cheatTypes'
 
 export const CHEAT_RECONNECT_DELAY_MS = 2_000
 
@@ -23,11 +23,13 @@ export interface CheatLinkOptions {
 
 export interface CheatLink {
   armed: DeepReadonly<Ref<ArmedCheat | null>>
+  wheelItems: DeepReadonly<Ref<readonly WheelLabel[]>>
   gameOnline: DeepReadonly<Ref<boolean>>
   connected: DeepReadonly<Ref<boolean>>
   arm: (armed: ArmedCheat) => void
   disarm: () => void
   consume: () => void
+  publishWheel: (items: readonly WheelLabel[]) => void
   close: () => void
 }
 
@@ -50,6 +52,7 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
   const delayMs = options.reconnectDelayMs ?? CHEAT_RECONNECT_DELAY_MS
 
   const armed = ref<ArmedCheat | null>(null)
+  const wheelItems = ref<WheelLabel[]>([])
   const gameOnline = ref(false)
   const connected = ref(false)
   let socket: CheatSocket | null = null
@@ -73,11 +76,16 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
     }
 
     if (message.t === 'arm') {
-      armed.value = { game: message.game, outcome: message.outcome, mode: message.mode }
+      const { t: _t, ...next } = message
+      armed.value = next
       return
     }
     if (message.t === 'disarm') {
       armed.value = null
+      return
+    }
+    if (message.t === 'wheel') {
+      wheelItems.value = message.items
       return
     }
     if (message.t === 'state') {
@@ -107,10 +115,11 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
 
   return {
     armed: readonly(armed),
+    wheelItems: readonly(wheelItems),
     gameOnline: readonly(gameOnline),
     connected: readonly(connected),
     arm(next) {
-      send({ t: 'arm', game: next.game, outcome: next.outcome, mode: next.mode })
+      send({ t: 'arm', ...next })
     },
     disarm() {
       send({ t: 'disarm' })
@@ -119,6 +128,9 @@ export function createCheatLink(options: CheatLinkOptions): CheatLink {
       // Clear locally first: the press already happened and must not fire twice if the socket lags.
       armed.value = null
       send({ t: 'consumed' })
+    },
+    publishWheel(items) {
+      send({ t: 'wheel', items: [...items] })
     },
     close() {
       closedOnPurpose = true

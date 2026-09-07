@@ -107,7 +107,7 @@ describe('useCrocodileGame', () => {
     const game = createCrocodileGame({
       rng: () => 0,
       feedback: createFeedback(),
-      cheat: { takeForcedOutcome: () => 'lose', settle: () => {} },
+      cheat: { takeForcedOutcome: () => 'lose', takeForcedItem: () => undefined, settle: () => {} },
     })
 
     await game.pressTooth(5)
@@ -121,7 +121,7 @@ describe('useCrocodileGame', () => {
     const game = createCrocodileGame({
       rng: () => 0,
       feedback: createFeedback(),
-      cheat: { takeForcedOutcome: () => 'lose', settle },
+      cheat: { takeForcedOutcome: () => 'lose', takeForcedItem: () => undefined, settle },
     })
 
     await game.pressTooth(99)

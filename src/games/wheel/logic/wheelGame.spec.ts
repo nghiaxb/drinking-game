@@ -167,10 +167,7 @@ describe('wheelGame angle math and visual contract', () => {
     const second = computeTargetRotation(first, 'double', enabledSix, 3)
     expect(second).toBeGreaterThan(first)
     expect(
-      pointerAlignmentAfterRotation(
-        computeSegmentCenterAngle(enabledSix, 'double'),
-        second,
-      ),
+      pointerAlignmentAfterRotation(computeSegmentCenterAngle(enabledSix, 'double'), second),
     ).toBe(0)
   })
 
@@ -180,6 +177,38 @@ describe('wheelGame angle math and visual contract', () => {
     expect(plan.winnerId).toBe('drink-50')
     expect(plan.winnerLabel).toBe('Uống 50%')
     expect(plan.targetRotation).toBeGreaterThan(180)
+  })
+
+  it('lands on a forced segment regardless of the rng', () => {
+    const plan = computeSpinPlan(() => 0, enabledSix, 0, 3, 'free')
+
+    expect(plan.winnerId).toBe('free')
+    expect(plan.winnerLabel).toBe('Miễn uống')
+    // The wheel must still make its full turns, so a forced landing looks like any other spin.
+    expect(plan.targetRotation).toBeGreaterThanOrEqual(3 * 360)
+  })
+
+  it('parks the forced segment exactly under the pointer', () => {
+    const plan = computeSpinPlan(() => 0.5, enabledSix, 137, 3, 'double')
+    const center = computeSegmentCenterAngle(enabledSix, 'double')
+
+    expect(pointerAlignmentAfterRotation(center, plan.targetRotation)).toBeCloseTo(0, 6)
+  })
+
+  it('falls back to the rng when the forced segment is unknown or disabled', () => {
+    const unknown = computeSpinPlan(() => 0, enabledSix, 0, 3, 'not-a-real-id')
+    expect(unknown.winnerId).toBe('drink-50')
+
+    const disabled = enabledSix.map((item) =>
+      item.id === 'free' ? { ...item, enabled: false } : item,
+    )
+    const off = computeSpinPlan(() => 0, disabled, 0, 3, 'free')
+    expect(off.winnerId).toBe('drink-50')
+  })
+
+  it('ignores a blank forced segment id', () => {
+    expect(computeSpinPlan(() => 0, enabledSix, 0, 3, '').winnerId).toBe('drink-50')
+    expect(computeSpinPlan(() => 0, enabledSix, 0, 3, '   ').winnerId).toBe('drink-50')
   })
 })
 
@@ -200,11 +229,7 @@ describe('wheelGame id generation and editor validation', () => {
     const created = buildItemFromDraft({ label: 'Thử mới', enabled: true }, items, null)
     expect(created?.id).toBe('thu-moi')
 
-    const edited = buildItemFromDraft(
-      { label: 'Uống 50% mới', enabled: false },
-      items,
-      'drink-50',
-    )
+    const edited = buildItemFromDraft({ label: 'Uống 50% mới', enabled: false }, items, 'drink-50')
     expect(edited).toEqual({ id: 'drink-50', label: 'Uống 50% mới', enabled: false })
   })
 

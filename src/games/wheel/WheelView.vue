@@ -91,8 +91,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { IconTarget } from '@tabler/icons-vue'
+import { createCheatArmSource } from '@/cheat/cheatArm'
+import { useCheatGameLink } from '@/cheat/useCheatGameLink'
 import { useGameFeedback } from '@/composables/useGameFeedback'
 import { storage } from '@/services/storage'
 import { wheelSegmentStyleAt } from './config'
@@ -105,8 +107,13 @@ const feedback = useGameFeedback()
 const audioPrimed = ref(false)
 const prefersReducedMotion = usePrefersReducedMotion()
 
+const cheatLink = useCheatGameLink()
 const game = useWheelGame({
   storage,
+  cheat: createCheatArmSource(
+    () => cheatLink.armed.value,
+    () => cheatLink.consume(),
+  ),
   feedback: {
     playTick: () => feedback.playTick(),
     playWin: () => feedback.playWin(),
@@ -115,6 +122,18 @@ const game = useWheelGame({
   prefersReducedMotion,
   primeAudio: () => feedback.primeAudio(),
 })
+
+/*
+ * The admin screen cannot guess a user-edited wheel, so the enabled rows are published upward.
+ * Labels only — no game state — and only while this device is configured as the game device.
+ */
+watch(
+  () => game.items.value.filter((item) => item.enabled).map(({ id, label }) => ({ id, label })),
+  (rows) => {
+    cheatLink.publishWheel(rows)
+  },
+  { immediate: true, deep: true },
+)
 
 /**
  * Tint the result with the wedge that actually won, so the panel and the wheel agree. Segments come

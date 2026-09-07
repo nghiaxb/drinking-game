@@ -65,6 +65,62 @@ describe('parseCheatMessage', () => {
       armed: { game: 'mine', outcome: 'win', mode: 'once' },
     })
   })
+  it('parses a wheel arm carrying a segment id', () => {
+    expect(
+      parseCheatMessage('{"t":"arm","game":"wheel","itemId":"drink-100","mode":"once"}'),
+    ).toEqual({ t: 'arm', game: 'wheel', itemId: 'drink-100', mode: 'once' })
+  })
+
+  it('rejects a wheel arm without a usable segment id', () => {
+    const bad = [
+      '{"t":"arm","game":"wheel","mode":"once"}',
+      '{"t":"arm","game":"wheel","itemId":"","mode":"once"}',
+      '{"t":"arm","game":"wheel","itemId":"   ","mode":"once"}',
+      '{"t":"arm","game":"wheel","itemId":42,"mode":"once"}',
+      '{"t":"arm","game":"wheel","outcome":"lose","mode":"once"}',
+    ]
+
+    for (const raw of bad) {
+      expect(parseCheatMessage(raw)).toBeNull()
+    }
+  })
+
+  it('rejects a press-game arm that carries an itemId instead of an outcome', () => {
+    expect(parseCheatMessage('{"t":"arm","game":"mine","itemId":"x","mode":"once"}')).toBeNull()
+  })
+
+  it('parses a wheel label list and drops malformed entries wholesale', () => {
+    expect(
+      parseCheatMessage(
+        '{"t":"wheel","items":[{"id":"a","label":"Uống 50%"},{"id":"b","label":"X"}]}',
+      ),
+    ).toEqual({
+      t: 'wheel',
+      items: [
+        { id: 'a', label: 'Uống 50%' },
+        { id: 'b', label: 'X' },
+      ],
+    })
+
+    expect(parseCheatMessage('{"t":"wheel","items":[]}')).toEqual({ t: 'wheel', items: [] })
+
+    const bad = [
+      '{"t":"wheel"}',
+      '{"t":"wheel","items":"a"}',
+      '{"t":"wheel","items":[{"id":"a"}]}',
+      '{"t":"wheel","items":[{"id":"","label":"x"}]}',
+      '{"t":"wheel","items":[{"id":"a","label":""}]}',
+      '{"t":"wheel","items":[{"id":"a","label":5}]}',
+    ]
+    for (const raw of bad) {
+      expect(parseCheatMessage(raw)).toBeNull()
+    }
+  })
+
+  it('caps the wheel label list so one device cannot flood the room', () => {
+    const items = Array.from({ length: 80 }, (_, i) => `{"id":"i${i}","label":"L${i}"}`).join(',')
+    expect(parseCheatMessage(`{"t":"wheel","items":[${items}]}`)).toBeNull()
+  })
 })
 
 describe('parseSocketRole', () => {

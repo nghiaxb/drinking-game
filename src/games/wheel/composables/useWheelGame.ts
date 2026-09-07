@@ -1,5 +1,6 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import type { AppStorage } from '@/services/storage'
+import type { CheatArmSource } from '@/cheat/cheatArm'
 import { resolveSpinDurationMs, WHEEL_CONFIG, WHEEL_STORAGE_KEY_ITEMS } from '../config'
 import {
   buildItemFromDraft,
@@ -16,7 +17,13 @@ import {
   validateEditorDraft,
   type RandomSource,
 } from '../logic/wheelGame'
-import type { EditorDraft, EditorValidationResult, SpinBlockReason, WheelItem, WheelPhase } from '../types'
+import type {
+  EditorDraft,
+  EditorValidationResult,
+  SpinBlockReason,
+  WheelItem,
+  WheelPhase,
+} from '../types'
 import { useWheelAnimation } from './useWheelAnimation'
 
 export interface WheelFeedback {
@@ -31,6 +38,7 @@ export interface WheelGameOptions {
   feedback: WheelFeedback
   prefersReducedMotion: Ref<boolean>
   primeAudio?: () => void
+  cheat?: CheatArmSource
 }
 
 export interface WheelGameController {
@@ -119,9 +127,7 @@ export function createWheelGame(options: WheelGameOptions): WheelGameController 
     return reason ? SPIN_BLOCK_MESSAGES[reason] : null
   })
 
-  const spinDurationMs = computed(() =>
-    resolveSpinDurationMs(options.prefersReducedMotion.value),
-  )
+  const spinDurationMs = computed(() => resolveSpinDurationMs(options.prefersReducedMotion.value))
 
   const animation = useWheelAnimation({
     rotation,
@@ -134,8 +140,7 @@ export function createWheelGame(options: WheelGameOptions): WheelGameController 
         phase: 'result',
         currentRotation: rotation.value,
         winnerId: pendingWinnerId.value,
-        winnerLabel:
-          items.value.find((item) => item.id === pendingWinnerId.value)?.label ?? null,
+        winnerLabel: items.value.find((item) => item.id === pendingWinnerId.value)?.label ?? null,
       }
       pendingWinnerId.value = null
       void Promise.resolve(options.feedback.playWin()).catch(() => {
@@ -198,7 +203,14 @@ export function createWheelGame(options: WheelGameOptions): WheelGameController 
     spinInProgress = true
     options.primeAudio?.()
 
-    const plan = computeSpinPlan(rng, items.value, state.value.currentRotation)
+    const forcedWinnerId = options.cheat?.takeForcedItem()
+    const plan = computeSpinPlan(
+      rng,
+      items.value,
+      state.value.currentRotation,
+      WHEEL_CONFIG.minFullSpins,
+      forcedWinnerId,
+    )
     pendingWinnerId.value = plan.winnerId
     state.value = {
       ...state.value,
@@ -208,6 +220,9 @@ export function createWheelGame(options: WheelGameOptions): WheelGameController 
     }
 
     const completed = await animation.startSpin({ targetRotation: plan.targetRotation })
+    // Settled only after the wheel actually stopped: a cancelled spin must not burn a one-shot.
+    options.cheat?.settle(completed)
+
     if (!completed) {
       pendingWinnerId.value = null
       state.value = { ...state.value, phase: 'idle' }

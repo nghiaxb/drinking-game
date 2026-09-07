@@ -73,4 +73,47 @@ describe('createCheatArmSource', () => {
 
     expect(consume).not.toHaveBeenCalled()
   })
+  it('hands over a forced wheel segment and consumes a once arm', () => {
+    let armed: ArmedCheat | null = { game: 'wheel', itemId: 'drink-100', mode: 'once' }
+    const consume = vi.fn(() => {
+      armed = null
+    })
+    const source = createCheatArmSource(() => armed, consume)
+
+    expect(source.takeForcedItem()).toBe('drink-100')
+    source.settle(true)
+
+    expect(consume).toHaveBeenCalledTimes(1)
+    expect(source.takeForcedItem()).toBeUndefined()
+  })
+
+  it('keeps a sticky wheel arm across spins', () => {
+    const consume = vi.fn()
+    const source = createCheatArmSource(
+      () => ({ game: 'wheel', itemId: 'free', mode: 'sticky' }),
+      consume,
+    )
+
+    for (let i = 0; i < 3; i += 1) {
+      expect(source.takeForcedItem()).toBe('free')
+      source.settle(true)
+    }
+
+    expect(consume).not.toHaveBeenCalled()
+  })
+
+  it('keeps the two cheat kinds apart', () => {
+    const wheelSource = createCheatArmSource(
+      () => ({ game: 'wheel', itemId: 'free', mode: 'once' }),
+      vi.fn(),
+    )
+    expect(wheelSource.takeForcedOutcome('mine')).toBeUndefined()
+    expect(wheelSource.takeForcedOutcome('crocodile')).toBeUndefined()
+
+    const pressSource = createCheatArmSource(
+      () => ({ game: 'mine', outcome: 'lose', mode: 'once' }),
+      vi.fn(),
+    )
+    expect(pressSource.takeForcedItem()).toBeUndefined()
+  })
 })

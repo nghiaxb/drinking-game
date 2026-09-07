@@ -7,12 +7,12 @@ const STICKY = { game: 'crocodile', outcome: 'lose', mode: 'sticky' } as const
 
 describe('reduceRoom', () => {
   it('starts with nothing armed and no game device', () => {
-    expect(INITIAL_ROOM_STATE).toEqual({ armed: null, gameSocketCount: 0 })
+    expect(INITIAL_ROOM_STATE).toEqual({ armed: null, gameSocketCount: 0, wheelItems: [] })
   })
 
   it('stores an arm from admin and pushes it to the game device', () => {
     const result = reduceRoom(
-      { armed: null, gameSocketCount: 1 },
+      { armed: null, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'admin', message: { t: 'arm', ...ARMED } },
     )
 
@@ -25,7 +25,7 @@ describe('reduceRoom', () => {
 
   it('replays a pending arm to a game device that connects later', () => {
     const result = reduceRoom(
-      { armed: ARMED, gameSocketCount: 0 },
+      { armed: ARMED, gameSocketCount: 0, wheelItems: [] },
       { type: 'connect', role: 'game' },
     )
 
@@ -46,11 +46,11 @@ describe('reduceRoom', () => {
 
   it('greets a connecting admin with current state', () => {
     const result = reduceRoom(
-      { armed: ARMED, gameSocketCount: 1 },
+      { armed: ARMED, gameSocketCount: 1, wheelItems: [] },
       { type: 'connect', role: 'admin' },
     )
 
-    expect(result.state).toEqual({ armed: ARMED, gameSocketCount: 1 })
+    expect(result.state).toEqual({ armed: ARMED, gameSocketCount: 1, wheelItems: [] })
     expect(result.effects).toEqual([
       { to: 'sender', message: { t: 'state', gameOnline: true, armed: ARMED } },
     ])
@@ -58,7 +58,7 @@ describe('reduceRoom', () => {
 
   it('clears the arm on disarm and tells both sides', () => {
     const result = reduceRoom(
-      { armed: ARMED, gameSocketCount: 1 },
+      { armed: ARMED, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'admin', message: { t: 'disarm' } },
     )
 
@@ -71,7 +71,7 @@ describe('reduceRoom', () => {
 
   it('keeps a sticky arm when the game device reports a press', () => {
     const result = reduceRoom(
-      { armed: STICKY, gameSocketCount: 1 },
+      { armed: STICKY, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'game', message: { t: 'consumed' } },
     )
 
@@ -81,7 +81,7 @@ describe('reduceRoom', () => {
 
   it('clears a once arm when the game device reports it was consumed', () => {
     const result = reduceRoom(
-      { armed: ARMED, gameSocketCount: 1 },
+      { armed: ARMED, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'game', message: { t: 'consumed' } },
     )
 
@@ -92,7 +92,7 @@ describe('reduceRoom', () => {
   })
 
   it('ignores messages coming from the wrong role', () => {
-    const armedState: RoomState = { armed: null, gameSocketCount: 1 }
+    const armedState: RoomState = { armed: null, gameSocketCount: 1, wheelItems: [] }
 
     const armFromGame = reduceRoom(armedState, {
       type: 'message',
@@ -103,7 +103,7 @@ describe('reduceRoom', () => {
     expect(armFromGame.effects).toEqual([])
 
     const consumedFromAdmin = reduceRoom(
-      { armed: ARMED, gameSocketCount: 1 },
+      { armed: ARMED, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'admin', message: { t: 'consumed' } },
     )
     expect(consumedFromAdmin.state.armed).toEqual(ARMED)
@@ -112,7 +112,7 @@ describe('reduceRoom', () => {
 
   it('ignores a state frame sent by a client', () => {
     const result = reduceRoom(
-      { armed: null, gameSocketCount: 1 },
+      { armed: null, gameSocketCount: 1, wheelItems: [] },
       { type: 'message', role: 'admin', message: { t: 'state', gameOnline: false, armed: null } },
     )
 
@@ -121,11 +121,11 @@ describe('reduceRoom', () => {
 
   it('drops presence when the game device disconnects', () => {
     const result = reduceRoom(
-      { armed: ARMED, gameSocketCount: 1 },
+      { armed: ARMED, gameSocketCount: 1, wheelItems: [] },
       { type: 'disconnect', role: 'game' },
     )
 
-    expect(result.state).toEqual({ armed: ARMED, gameSocketCount: 0 })
+    expect(result.state).toEqual({ armed: ARMED, gameSocketCount: 0, wheelItems: [] })
     expect(result.effects).toEqual([
       { to: 'admin', message: { t: 'state', gameOnline: false, armed: ARMED } },
     ])
@@ -139,10 +139,70 @@ describe('reduceRoom', () => {
 
   it('emits nothing when an admin disconnects', () => {
     const result = reduceRoom(
-      { armed: null, gameSocketCount: 1 },
+      { armed: null, gameSocketCount: 1, wheelItems: [] },
       { type: 'disconnect', role: 'admin' },
     )
 
     expect(result.effects).toEqual([])
+  })
+  const LABELS = [
+    { id: 'drink-50', label: 'Uống 50%' },
+    { id: 'free', label: 'Miễn uống' },
+  ]
+
+  it('stores the wheel labels a game device publishes and relays them to admins', () => {
+    const result = reduceRoom(INITIAL_ROOM_STATE, {
+      type: 'message',
+      role: 'game',
+      message: { t: 'wheel', items: LABELS },
+    })
+
+    expect(result.state.wheelItems).toEqual(LABELS)
+    expect(result.effects).toEqual([{ to: 'admin', message: { t: 'wheel', items: LABELS } }])
+  })
+
+  it('ignores a wheel label list sent by an admin', () => {
+    const result = reduceRoom(INITIAL_ROOM_STATE, {
+      type: 'message',
+      role: 'admin',
+      message: { t: 'wheel', items: LABELS },
+    })
+
+    expect(result.state.wheelItems).toEqual([])
+    expect(result.effects).toEqual([])
+  })
+
+  it('hands the known labels to an admin that connects later', () => {
+    const result = reduceRoom(
+      { armed: null, gameSocketCount: 1, wheelItems: LABELS },
+      { type: 'connect', role: 'admin' },
+    )
+
+    expect(result.effects).toEqual([
+      { to: 'sender', message: { t: 'state', gameOnline: true, armed: null } },
+      { to: 'sender', message: { t: 'wheel', items: LABELS } },
+    ])
+  })
+
+  it('sends no wheel frame to an admin when no labels are known yet', () => {
+    const result = reduceRoom(INITIAL_ROOM_STATE, { type: 'connect', role: 'admin' })
+
+    expect(result.effects).toEqual([
+      { to: 'sender', message: { t: 'state', gameOnline: false, armed: null } },
+    ])
+  })
+
+  it('stores and replays a wheel arm', () => {
+    const wheelArm = { game: 'wheel', itemId: 'drink-100', mode: 'sticky' } as const
+    const result = reduceRoom(
+      { armed: null, gameSocketCount: 1, wheelItems: LABELS },
+      { type: 'message', role: 'admin', message: { t: 'arm', ...wheelArm } },
+    )
+
+    expect(result.state.armed).toEqual(wheelArm)
+    expect(result.effects).toEqual([
+      { to: 'game', message: { t: 'arm', ...wheelArm } },
+      { to: 'admin', message: { t: 'state', gameOnline: true, armed: wheelArm } },
+    ])
   })
 })

@@ -26,6 +26,23 @@ function createMemoryBackend(initial: Record<string, string> = {}): StorageBacke
   }
 }
 
+function createCheatGame(
+  storage: ReturnType<typeof createStorage>,
+  cheat: NonNullable<Parameters<typeof createWheelGame>[0]['cheat']>,
+) {
+  return createWheelGame({
+    storage,
+    rng: () => 0,
+    feedback: {
+      playTick: vi.fn().mockResolvedValue(undefined),
+      playWin: vi.fn().mockResolvedValue(undefined),
+      vibrateHeavy: vi.fn().mockResolvedValue(undefined),
+    },
+    prefersReducedMotion: ref(true),
+    cheat,
+  })
+}
+
 function createGame(storage: ReturnType<typeof createStorage>) {
   return createWheelGame({
     storage,
@@ -45,13 +62,17 @@ describe('useWheelGame', () => {
   })
 
   it('loads defaults when storage is missing', async () => {
-    const game = createGame(createStorage({ backend: createMemoryBackend(), isNative: () => false }))
+    const game = createGame(
+      createStorage({ backend: createMemoryBackend(), isNative: () => false }),
+    )
     await game.load()
     expect(game.items.value).toEqual(DEFAULT_WHEEL_ITEMS)
   })
 
   it('generates internal id from label when saving new draft', async () => {
-    const game = createGame(createStorage({ backend: createMemoryBackend(), isNative: () => false }))
+    const game = createGame(
+      createStorage({ backend: createMemoryBackend(), isNative: () => false }),
+    )
     await game.load()
     game.openEditor()
     game.setEditorDraft({ label: 'Thử mới', enabled: true })
@@ -190,7 +211,9 @@ describe('useWheelGame', () => {
   })
 
   it('blocks spin when editor is open even if draft is valid', async () => {
-    const game = createGame(createStorage({ backend: createMemoryBackend(), isNative: () => false }))
+    const game = createGame(
+      createStorage({ backend: createMemoryBackend(), isNative: () => false }),
+    )
     await game.load()
     game.openEditor()
     game.setEditorDraft({ label: 'Hợp lệ', enabled: true })
@@ -232,9 +255,38 @@ describe('useWheelGame', () => {
     await game.saveEditorDraft()
 
     const raw = await storage.get(WHEEL_STORAGE_KEY_ITEMS, null)
-    expect(raw).toEqual([
-      ...DEFAULT_WHEEL_ITEMS,
-      { id: 'custom', label: 'Custom', enabled: true },
-    ])
+    expect(raw).toEqual([...DEFAULT_WHEEL_ITEMS, { id: 'custom', label: 'Custom', enabled: true }])
+  })
+  it('lands the forced segment and spends a once arm', async () => {
+    const storage = createStorage({ backend: createMemoryBackend() })
+    const settle = vi.fn()
+    const game = createCheatGame(storage, {
+      takeForcedOutcome: () => undefined,
+      takeForcedItem: () => 'free',
+      settle,
+    })
+    await game.load()
+
+    await game.spin()
+
+    expect(game.winnerId.value).toBe('free')
+    expect(settle).toHaveBeenCalledWith(true)
+  })
+
+  it('does not burn the arm when the spin is cancelled mid-flight', async () => {
+    const storage = createStorage({ backend: createMemoryBackend() })
+    const settle = vi.fn()
+    const game = createCheatGame(storage, {
+      takeForcedOutcome: () => undefined,
+      takeForcedItem: () => 'free',
+      settle,
+    })
+    await game.load()
+
+    const spinning = game.spin()
+    game.dispose()
+    await spinning
+
+    expect(settle).toHaveBeenCalledWith(false)
   })
 })
