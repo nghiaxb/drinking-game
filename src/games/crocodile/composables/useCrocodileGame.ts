@@ -1,4 +1,5 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import type { CheatArmSource } from '@/cheat/cheatArm'
 import { CROCODILE_CONFIG } from '../config'
 import {
   createInitialState,
@@ -21,6 +22,7 @@ export interface CrocodileGameOptions {
   rng?: RandomSource
   feedback: CrocodileFeedback
   primeAudio?: () => void
+  cheat?: CheatArmSource
 }
 
 export interface CrocodileGameController {
@@ -70,20 +72,18 @@ export function createCrocodileGame(options: CrocodileGameOptions): CrocodileGam
   }
 
   function handlePress(index: number): Promise<void> {
-    pressChain = pressChain
-      .then(async () => {
-        const result = pressTooth(state.value, index)
-        if (result.outcome === 'ignored') {
-          return
-        }
+    const forced = options.cheat?.takeForcedOutcome('crocodile')
+    const result = pressTooth(state.value, index, forced, rng)
+    const outcome = result.outcome
+    options.cheat?.settle(outcome !== 'ignored')
 
-        state.value = result.state
-        await deliverFeedback(result.outcome)
-      })
-      .catch(() => {
-        // Feedback failures are no-ops; keep chain alive for later presses.
-      })
+    if (outcome === 'ignored') {
+      return pressChain
+    }
 
+    state.value = result.state
+    // Only feedback is serialised: state must land on the same tick as the press.
+    pressChain = pressChain.then(() => deliverFeedback(outcome)).catch(() => {})
     return pressChain
   }
 

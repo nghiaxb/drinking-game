@@ -54,6 +54,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { IconRefresh } from '@tabler/icons-vue'
+import { createCheatArmSource } from '@/cheat/cheatArm'
+import { useCheatGameLink } from '@/cheat/useCheatGameLink'
 import { useGameFeedback } from '@/composables/useGameFeedback'
 import CrocodileToy from './components/CrocodileToy.vue'
 import { useCrocodileGame } from './composables/useCrocodileGame'
@@ -65,7 +67,12 @@ const resultVisible = ref(false)
 const CROCODILE_RESULT_DELAY_MS = 420
 let resultTimer: ReturnType<typeof globalThis.setTimeout> | undefined
 
+const cheatLink = useCheatGameLink()
 const game = useCrocodileGame({
+  cheat: createCheatArmSource(
+    () => cheatLink.armed.value,
+    () => cheatLink.consume(),
+  ),
   feedback: {
     playClick: () => feedback.playClick(),
     playChomp: () => feedback.playChomp(),

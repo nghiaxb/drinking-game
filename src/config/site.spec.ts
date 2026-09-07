@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DEFAULT_SITE_URL, buildCanonicalUrl, getSiteUrl } from './site'
+import { DEFAULT_SITE_URL, buildCanonicalUrl, getCheatSocketUrl, getSiteUrl } from './site'
 
 describe('site config', () => {
   it('uses a clear default production URL when env is missing', () => {
@@ -18,5 +18,10 @@ describe('site config', () => {
     expect(buildCanonicalUrl('/games/crocodile', 'https://drinking-games.app')).toBe(
       'https://drinking-games.app/games/crocodile',
     )
+  })
+  it('treats a missing or blank cheat socket url as disabled', () => {
+    expect(getCheatSocketUrl(undefined)).toBe('')
+    expect(getCheatSocketUrl('   ')).toBe('')
+    expect(getCheatSocketUrl('wss://x.workers.dev/')).toBe('wss://x.workers.dev')
   })
 })

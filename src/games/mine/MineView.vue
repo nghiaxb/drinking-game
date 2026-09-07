@@ -88,6 +88,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { IconRefresh } from '@tabler/icons-vue'
+import { createCheatArmSource } from '@/cheat/cheatArm'
+import { useCheatGameLink } from '@/cheat/useCheatGameLink'
 import { useGameFeedback } from '@/composables/useGameFeedback'
 import FrogIcon from './components/FrogIcon.vue'
 import MineGrid from './components/MineGrid.vue'
@@ -97,7 +99,12 @@ import { useMineGame } from './composables/useMineGame'
 const feedback = useGameFeedback()
 const audioPrimed = ref(false)
 
+const cheatLink = useCheatGameLink()
 const game = useMineGame({
+  cheat: createCheatArmSource(
+    () => cheatLink.armed.value,
+    () => cheatLink.consume(),
+  ),
   feedback: {
     playClick: () => feedback.playClick(),
     playExplosion: () => feedback.playExplosion(),

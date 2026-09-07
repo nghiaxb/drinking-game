@@ -1,4 +1,5 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import type { CheatArmSource } from '@/cheat/cheatArm'
 import { MINE_CONFIG } from '../config'
 import {
   clampMineCount,
@@ -23,6 +24,7 @@ export interface MineGameOptions {
   rng?: RandomSource
   feedback: MineFeedback
   primeAudio?: () => void
+  cheat?: CheatArmSource
 }
 
 export interface MineGameController {
@@ -89,8 +91,11 @@ export function createMineGame(options: MineGameOptions): MineGameController {
     // Reveal synchronously. This used to run inside the feedback chain, which meant every tap
     // waited for the previous tap's sound and vibration to resolve — eight quick taps took over
     // half a second to show up, and taps with several fingers were serialised behind each other.
-    const result = pressCell(state.value, index)
+    const forced = options.cheat?.takeForcedOutcome('mine')
+    const result = pressCell(state.value, index, forced, rng)
     const outcome = result.outcome
+    options.cheat?.settle(outcome !== 'ignored')
+
     if (outcome === 'ignored') {
       return pressChain
     }

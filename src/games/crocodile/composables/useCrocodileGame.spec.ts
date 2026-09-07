@@ -103,4 +103,29 @@ describe('useCrocodileGame', () => {
     expect(feedback.playClick).toHaveBeenCalledTimes(1)
     expect(feedback.vibrateLight).toHaveBeenCalledTimes(1)
   })
+  it('bites the pressed tooth when the cheat source forces a loss', async () => {
+    const game = createCrocodileGame({
+      rng: () => 0,
+      feedback: createFeedback(),
+      cheat: { takeForcedOutcome: () => 'lose', settle: () => {} },
+    })
+
+    await game.pressTooth(5)
+
+    expect(game.phase.value).toBe('bitten')
+    expect(game.trapIndex.value).toBe(5)
+  })
+
+  it('does not consume the arm when the press is ignored', async () => {
+    const settle = vi.fn()
+    const game = createCrocodileGame({
+      rng: () => 0,
+      feedback: createFeedback(),
+      cheat: { takeForcedOutcome: () => 'lose', settle },
+    })
+
+    await game.pressTooth(99)
+
+    expect(settle).toHaveBeenCalledWith(false)
+  })
 })

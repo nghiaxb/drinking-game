@@ -22,3 +22,16 @@ export function buildCanonicalUrl(path: string, siteUrl: string = getSiteUrl()):
   }
   return `${siteUrl}${normalizedPath}`
 }
+
+/**
+ * Cheat control channel base url. Empty means the feature is off: no socket is ever opened.
+ */
+export function getCheatSocketUrl(
+  envValue: string | undefined = import.meta.env.VITE_CHEAT_SOCKET_URL,
+): string {
+  const trimmed = envValue?.trim()
+  if (!trimmed) {
+    return ''
+  }
+  return trimmed.replace(/\/+$/, '')
+}

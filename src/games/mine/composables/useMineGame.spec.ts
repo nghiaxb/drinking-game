@@ -190,4 +190,16 @@ describe('useMineGame', () => {
     expect(feedback.playClick).toHaveBeenCalledTimes(1)
     expect(feedback.vibrateLight).toHaveBeenCalledTimes(1)
   })
+  it('explodes on the pressed cell when the cheat source forces a loss', async () => {
+    const game = createMineGame({
+      rng: () => 0,
+      feedback: createFeedback(),
+      cheat: { takeForcedOutcome: () => 'lose', settle: () => {} },
+    })
+
+    await game.pressCell(7)
+
+    expect(game.phase.value).toBe('exploded')
+    expect(game.hitMineIndex.value).toBe(7)
+  })
 })
