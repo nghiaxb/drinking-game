@@ -39,6 +39,10 @@ blob-report/
 
 # Capacitor (future)
 icons/
+# Derived by `npm run generate:assets` (which prebuild runs), same as public/icons.
+# Run that before `generate:cap-assets` on a fresh clone.
+assets/icon-only.png
+assets/splash.png
 android/.gradle
 android/app/build
 android/build
