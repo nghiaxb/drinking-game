@@ -1,6 +1,6 @@
 # Drinking Games
 
-Bộ sưu tập **4 mini game nhậu offline** trên **một codebase** duy nhất, triển khai Web, PWA, Android và iOS qua Capacitor.
+Bộ sưu tập **5 mini game nhậu offline** trên **một codebase** duy nhất, triển khai Web, PWA, Android và iOS qua Capacitor.
 
 | Game | Route |
 |------|-------|
@@ -8,8 +8,9 @@ Bộ sưu tập **4 mini game nhậu offline** trên **một codebase** duy nh�
 | Bắt ếch | `/games/mine` |
 | Vòng quay | `/games/wheel` |
 | Bốc bài | `/games/cards` |
+| Bom hẹn giờ | `/games/bomb` |
 
-**Phạm vi tính năng:** client-only cho toàn bộ 4 game — không tài khoản, không đồng bộ đám mây, dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
+**Phạm vi tính năng:** client-only cho toàn bộ 5 game — không tài khoản, không đồng bộ đám mây, dữ liệu lưu cục bộ (localStorage / Capacitor Preferences). Âm thanh Web Audio, rung qua Capacitor Haptics trên native.
 
 Ngoại lệ duy nhất là kênh điều khiển ở `/x` (Cloudflare Worker + Durable Object, xem `worker/`). Nó **tắt hoàn toàn** khi `VITE_CHEAT_SOCKET_URL` rỗng hoặc máy chưa cài mã, nên bản mặc định không mở kết nối nào.
 
@@ -282,7 +283,7 @@ scripts/           generate-*, verify-dist, audit-build
 ## Prerender routes
 
 - `/`
-- `/games/crocodile`, `/games/mine`, `/games/wheel`, `/games/cards`
+- `/games/crocodile`, `/games/mine`, `/games/wheel`, `/games/cards`, `/games/bomb`
 
 (`/settings` và 404 không prerender — SPA client-side.)
 

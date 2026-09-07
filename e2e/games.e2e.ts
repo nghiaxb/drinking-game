@@ -131,3 +131,54 @@ test('cards: draw, deck/filter/reshuffle, keyboard on draw button', async ({ pag
   guard.assertClean()
   guard.dispose()
 })
+
+test('bomb: pass the phone, blast on a hidden fuse, then replay', async ({ page }) => {
+  const guard = attachConsoleGuard(page)
+  await emulateReducedMotion(page)
+  // Fake clock: the fuse is tens of seconds of real time, and the test must not wait it out.
+  await page.clock.install()
+  await prepareGamePage(page, '/games/bomb')
+
+  await expect(page.getByTestId('bomb-view')).toBeVisible()
+  await expect(page.getByTestId('bomb-intro')).toBeVisible()
+  await expect(page.getByTestId('bomb-fuse')).toContainText('15–35 giây')
+
+  // Narrow the window so the round is short, and check the setting survives a reload.
+  await page.getByTestId('bomb-fuse-max').fill('20000')
+  await expect(page.getByTestId('bomb-fuse')).toContainText('15–20 giây')
+  await page.reload()
+  await dismissPwaBanners(page)
+  await expect(page.getByTestId('bomb-fuse')).toContainText('15–20 giây')
+
+  await page.getByTestId('bomb-start').click()
+  await expect(page.getByTestId('bomb-stage')).toBeVisible()
+  await expect(page.getByTestId('bomb-fuse')).toHaveCount(0)
+  await expect(page.getByTestId('bomb-topic')).not.toBeEmpty()
+  await expect(page.getByTestId('bomb-category')).not.toBeEmpty()
+  await expect(page.getByTestId('bomb-passes')).toContainText('0 lượt')
+
+  await page.getByTestId('bomb-pass').click()
+  await page.getByTestId('bomb-pass').click()
+  await expect(page.getByTestId('bomb-passes')).toContainText('2 lượt')
+
+  // Nothing on screen may count down: knowing when it blows would end the game.
+  await expect(page.getByTestId('bomb-stage')).toContainText('????')
+  await expect(page.locator('[role="progressbar"], [role="meter"], progress')).toHaveCount(0)
+
+  await page.clock.fastForward(21_000)
+  await expect(page.getByTestId('bomb-result')).toBeVisible()
+  await expect(page.getByTestId('bomb-pass')).toHaveCount(0)
+  await expect(page.getByTestId('bomb-status-live')).toContainText('2 lượt')
+
+  // Guarded so a tap already heading for "chuyền" cannot wipe the result on landing.
+  await expect(page.getByTestId('bomb-replay')).toBeDisabled()
+  await page.clock.fastForward(600)
+  await expect(page.getByTestId('bomb-replay')).toBeEnabled()
+
+  await page.getByTestId('bomb-replay').click()
+  await expect(page.getByTestId('bomb-topic')).not.toBeEmpty()
+  await expect(page.getByTestId('bomb-passes')).toContainText('0 lượt')
+
+  guard.assertClean()
+  guard.dispose()
+})

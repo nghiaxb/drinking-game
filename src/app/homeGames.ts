@@ -38,4 +38,11 @@ export const HOME_GAME_CARDS: HomeGameCard[] = [
     path: GAME_ROUTE_PATHS.cards,
     accent: 'teal',
   },
+  {
+    id: 'bomb',
+    label: 'Bom hẹn giờ',
+    emoji: '💣',
+    path: GAME_ROUTE_PATHS.bomb,
+    accent: 'amber',
+  },
 ]

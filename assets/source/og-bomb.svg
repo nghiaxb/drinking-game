@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Bomb">
+  <rect width="1200" height="630" fill="#7c2d12"/>
+  <text x="96" y="220" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Bom hen gio</text>
+  <text x="96" y="300" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#fed7aa">Mini game - Drinking Games</text>
+  <circle cx="960" cy="380" r="120" fill="#1c1917"/>
+  <rect x="936" y="230" width="48" height="46" rx="10" fill="#44403c"/>
+  <path d="M960 232c0-46 44-58 74-40 30 18 26 62-6 70" stroke="#f4a261" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <circle cx="1032" cy="262" r="20" fill="#fbbf24"/>
+  <circle cx="1032" cy="262" r="9" fill="#fff7ed"/>
+</svg>

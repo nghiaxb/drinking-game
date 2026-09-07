@@ -26,6 +26,7 @@ export const EXPECTED_OG_IMAGES = [
   'og/og-mine.png',
   'og/og-wheel.png',
   'og/og-cards.png',
+  'og/og-bomb.png',
 ] as const
 
 export interface DistFileEntry {
@@ -53,6 +54,7 @@ const GAME_VIEW_CHUNK_PREFIX: Record<GameRouteId, string> = {
   mine: 'MineView',
   wheel: 'WheelView',
   cards: 'CardsView',
+  bomb: 'BombView',
 }
 
 function escapeRegExp(value: string): string {

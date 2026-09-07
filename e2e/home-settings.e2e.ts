@@ -9,12 +9,14 @@ test.describe('home and settings', () => {
     await clearAppStorage(page)
   })
 
-  test('home renders five game cards with correct routes', async ({ page }) => {
+  test('home renders a card for every game with correct routes', async ({ page }) => {
     const guard = attachConsoleGuard(page)
     await page.goto('/')
 
     await expect(page.getByTestId('home-view')).toBeVisible()
-    expect(HOME_GAME_CARDS).toHaveLength(4)
+    // Derived, not hardcoded: the real contract is that every card in the data renders, and that
+    // the page shows no extras.
+    await expect(page.locator('[data-testid^="home-game-"]')).toHaveCount(HOME_GAME_CARDS.length)
 
     for (const game of HOME_GAME_CARDS) {
       const card = page.getByTestId(`home-game-${game.id}`)

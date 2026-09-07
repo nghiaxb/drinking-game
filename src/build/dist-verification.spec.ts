@@ -117,6 +117,7 @@ describe('dist-verification helpers', () => {
       { relativePath: 'assets/MineView-def456.js', rawBytes: 1000, gzipBytes: 400 },
       { relativePath: 'assets/WheelView-ghi789.js', rawBytes: 1000, gzipBytes: 400 },
       { relativePath: 'assets/CardsView-mno345.js', rawBytes: 1000, gzipBytes: 400 },
+      { relativePath: 'assets/BombView-pqr678.js', rawBytes: 1000, gzipBytes: 400 },
     ]
 
     for (const gameId of GAME_ROUTE_IDS) {
@@ -157,6 +158,6 @@ describe('dist-verification helpers', () => {
 
   it('documents required sound and OG image asset paths', () => {
     expect(EXPECTED_SOUND_FILES).toHaveLength(7)
-    expect(EXPECTED_OG_IMAGES).toHaveLength(5)
+    expect(EXPECTED_OG_IMAGES).toHaveLength(6)
   })
 })

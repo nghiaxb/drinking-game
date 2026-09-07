@@ -15,6 +15,7 @@ export const PUBLIC_ROUTES = [
   '/games/mine',
   '/games/wheel',
   '/games/cards',
+  '/games/bomb',
 ] as const
 
 export const RESPONSIVE_VIEWPORTS = [
@@ -29,6 +30,7 @@ export const RESPONSIVE_VIEWPORTS = [
 export const PRIMARY_CONTROL_SELECTORS = [
   '[data-testid="wheel-spin-button"]',
   '[data-testid="cards-draw-button"]',
+  '[data-testid="bomb-start"]',
   '[data-testid="crocodile-replay"]',
   '[data-testid="mine-replay"]',
   'button[data-testid^="crocodile-tooth-"]',
@@ -42,6 +44,7 @@ export const ROUTE_PRIMARY_CONTROL_SELECTORS: Record<string, string> = {
   '/games/mine': '[data-testid^="mine-cell-"]',
   '/games/wheel': '[data-testid="wheel-spin-button"]',
   '/games/cards': '[data-testid="cards-draw-button"]',
+  '/games/bomb': '[data-testid="bomb-start"]',
 }
 
 function isBenignConsoleMessage(text: string): boolean {

@@ -34,10 +34,10 @@ const APP_SEO = {
   home: {
     title: 'Drinking Games — Trò chơi nhậu offline',
     description:
-      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay và Bốc bài. Chơi ngay trên web hoặc cài PWA.',
+      'Bộ sưu tập mini game nhậu offline: Răng cá sấu, Bắt ếch, Vòng quay, Bốc bài và Bom hẹn giờ. Chơi ngay trên web hoặc cài PWA.',
     ogTitle: 'Drinking Games — Chơi offline mọi lúc',
     ogDescription:
-      'Bốn trò chơi nhậu vui nhộn, tối ưu mobile, cài đặt như app và chơi offline sau lần tải đầu.',
+      'Năm trò chơi nhậu vui nhộn, tối ưu mobile, cài đặt như app và chơi offline sau lần tải đầu.',
     ogImage: '/og/og-home.png',
     jsonLdType: 'WebApplication' as const,
   },
@@ -73,6 +73,15 @@ const APP_SEO = {
     ogTitle: 'Bốc bài — Mini game nhậu',
     ogDescription: 'Bốc bài, lật thẻ và làm theo thử thách cùng bạn bè.',
     ogImage: '/og/og-cards.png',
+    jsonLdType: 'VideoGame' as const,
+  },
+  bomb: {
+    title: 'Bom hẹn giờ — Drinking Games',
+    description:
+      'Mini game Bom hẹn giờ: trả lời chủ đề rồi chuyền máy, bom nổ trên tay ai người đó uống.',
+    ogTitle: 'Bom hẹn giờ — Mini game nhậu',
+    ogDescription: 'Kể tên theo chủ đề rồi chuyền nhanh — không ai biết bom nổ lúc nào.',
+    ogImage: '/og/og-bomb.png',
     jsonLdType: 'VideoGame' as const,
   },
   settings: {
@@ -127,6 +136,13 @@ export const APP_ROUTES: AppRouteDefinition[] = [
     gameId: 'cards',
     seo: APP_SEO.cards,
     component: () => import('@/games/cards/CardsView.vue'),
+  },
+  {
+    path: GAME_ROUTE_PATHS.bomb,
+    name: 'game-bomb',
+    gameId: 'bomb',
+    seo: APP_SEO.bomb,
+    component: () => import('@/games/bomb/BombView.vue'),
   },
   {
     path: '/settings',

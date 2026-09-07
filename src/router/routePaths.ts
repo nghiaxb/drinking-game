@@ -1,10 +1,11 @@
-export type GameRouteId = 'crocodile' | 'mine' | 'wheel' | 'cards'
+export type GameRouteId = 'crocodile' | 'mine' | 'wheel' | 'cards' | 'bomb'
 
 export const GAME_ROUTE_IDS = [
   'crocodile',
   'mine',
   'wheel',
   'cards',
+  'bomb',
 ] as const satisfies readonly GameRouteId[]
 
 export const PRERENDER_PATHS = [
@@ -13,6 +14,7 @@ export const PRERENDER_PATHS = [
   '/games/mine',
   '/games/wheel',
   '/games/cards',
+  '/games/bomb',
 ] as const
 
 export type PrerenderPath = (typeof PRERENDER_PATHS)[number]
@@ -22,4 +24,5 @@ export const GAME_ROUTE_PATHS: Record<GameRouteId, `/games/${GameRouteId}`> = {
   mine: '/games/mine',
   wheel: '/games/wheel',
   cards: '/games/cards',
+  bomb: '/games/bomb',
 }

@@ -73,6 +73,7 @@ const outputs = [
   { input: 'og-mine.svg', output: 'public/og/og-mine.png', width: 1200, height: 630 },
   { input: 'og-wheel.svg', output: 'public/og/og-wheel.png', width: 1200, height: 630 },
   { input: 'og-cards.svg', output: 'public/og/og-cards.png', width: 1200, height: 630 },
+  { input: 'og-bomb.svg', output: 'public/og/og-bomb.png', width: 1200, height: 630 },
   { input: 'icon.webp', output: 'assets/icon-only.png', width: 1024, height: 1024 },
   { input: 'splash.svg', output: 'assets/splash.png', width: 2732, height: 2732 },
 ]

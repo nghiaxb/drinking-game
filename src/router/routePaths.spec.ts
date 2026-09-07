@@ -3,13 +3,14 @@ import { describe, it, expect } from 'vitest'
 import { GAME_ROUTE_PATHS, GAME_ROUTE_IDS, PRERENDER_PATHS, type GameRouteId } from './routePaths'
 
 describe('routePaths', () => {
-  it('declares exactly five prerender paths', () => {
+  it('declares exactly six prerender paths', () => {
     expect(PRERENDER_PATHS).toEqual([
       '/',
       '/games/crocodile',
       '/games/mine',
       '/games/wheel',
       '/games/cards',
+      '/games/bomb',
     ])
   })
 
@@ -19,6 +20,7 @@ describe('routePaths', () => {
       'mine',
       'wheel',
       'cards',
+      'bomb',
     ] satisfies GameRouteId[])
 
     expect(GAME_ROUTE_PATHS).toEqual({
@@ -26,6 +28,7 @@ describe('routePaths', () => {
       mine: '/games/mine',
       wheel: '/games/wheel',
       cards: '/games/cards',
+      bomb: '/games/bomb',
     })
   })
 

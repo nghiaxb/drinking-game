@@ -7,13 +7,14 @@ import {
 } from './prerender-artifacts'
 
 describe('prerender artifacts', () => {
-  it('maps five routes to nested index.html paths for extensionless static hosting', () => {
+  it('maps six routes to nested index.html paths for extensionless static hosting', () => {
     expect(EXPECTED_NESTED_PRERENDER_FILES).toEqual([
       'index.html',
       'games/crocodile/index.html',
       'games/mine/index.html',
       'games/wheel/index.html',
       'games/cards/index.html',
+      'games/bomb/index.html',
     ])
   })
 
@@ -27,6 +28,7 @@ describe('prerender artifacts', () => {
       'games/mine.html',
       'games/wheel.html',
       'games/cards.html',
+      'games/bomb.html',
     ])
   })
 })

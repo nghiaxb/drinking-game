@@ -16,6 +16,7 @@ describe('audit-build helpers', () => {
     { relativePath: 'assets/MineView-def.js', rawBytes: 22_000, gzipBytes: 8_500 },
     { relativePath: 'assets/WheelView-ghi.js', rawBytes: 28_000, gzipBytes: 10_000 },
     { relativePath: 'assets/CardsView-mno.js', rawBytes: 26_000, gzipBytes: 9_800 },
+    { relativePath: 'assets/BombView-pqr.js', rawBytes: 18_000, gzipBytes: 6_500 },
     { relativePath: 'index.html', rawBytes: 4_000, gzipBytes: 1_500 },
   ]
 
