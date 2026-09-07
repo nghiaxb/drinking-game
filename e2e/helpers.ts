@@ -1,4 +1,5 @@
 import { expect, type ConsoleMessage, type Page, type BrowserContext } from '@playwright/test'
+import { PRERENDER_PATHS } from '../src/router/routePaths'
 
 const LOCAL_HOST_PATTERN = /^(127\.0\.0\.1|localhost)(:\d+)?$/i
 
@@ -9,14 +10,8 @@ const BENIGN_CONSOLE_PATTERNS: RegExp[] = [
   /Banner not shown/i,
 ]
 
-export const PUBLIC_ROUTES = [
-  '/',
-  '/games/crocodile',
-  '/games/mine',
-  '/games/wheel',
-  '/games/cards',
-  '/games/bomb',
-] as const
+/* Derived from the router: the crawlable routes are exactly the prerendered ones. */
+export const PUBLIC_ROUTES = PRERENDER_PATHS
 
 export const RESPONSIVE_VIEWPORTS = [
   { width: 320, height: 740, label: '320x740' },

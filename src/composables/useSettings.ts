@@ -121,8 +121,3 @@ export function useSettings(): SettingsState {
   }
   return manager
 }
-
-/** @internal Resets singleton for unit tests. */
-export function resetSettingsForTests(): void {
-  manager = null
-}
