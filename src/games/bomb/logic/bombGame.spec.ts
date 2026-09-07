@@ -7,7 +7,6 @@ import {
   explodeBomb,
   normalizeRngValue,
   parsePersistedFuseRange,
-  passBomb,
   pickFuseMs,
   pickTopic,
   resetRound,
@@ -248,12 +247,11 @@ describe('setFuseRange', () => {
 })
 
 describe('startRound', () => {
-  it('draws a topic and starts burning with a fresh pass count', () => {
+  it('draws a topic and starts burning', () => {
     const started = startRound(createBombState(POOL), () => 0)
 
     expect(started.phase).toBe('running')
     expect(started.currentTopic?.id).toBe('a')
-    expect(started.passes).toBe(0)
     expect(started.recentIds).toEqual(['a'])
   })
 
@@ -280,32 +278,12 @@ describe('startRound', () => {
   })
 })
 
-describe('passBomb', () => {
-  it('counts the pass and leaves the topic alone', () => {
-    const running = startRound(createBombState(POOL), () => 0)
-    const passed = passBomb(passBomb(running))
-
-    expect(passed.passes).toBe(2)
-    expect(passed.currentTopic).toBe(running.currentTopic)
-    expect(passed.phase).toBe('running')
-  })
-
-  it('is ignored outside a running round', () => {
-    const idle = createBombState(POOL)
-    expect(passBomb(idle)).toBe(idle)
-
-    const blown = explodeBomb(startRound(idle, () => 0))
-    expect(passBomb(blown)).toBe(blown)
-  })
-})
-
 describe('explodeBomb', () => {
-  it('ends a running round and keeps the pass count for the result', () => {
-    const running = passBomb(passBomb(startRound(createBombState(POOL), () => 0)))
+  it('ends a running round and keeps the topic for the result', () => {
+    const running = startRound(createBombState(POOL), () => 0)
     const blown = explodeBomb(running)
 
     expect(blown.phase).toBe('exploded')
-    expect(blown.passes).toBe(2)
     expect(blown.currentTopic?.id).toBe('a')
   })
 
@@ -325,7 +303,6 @@ describe('resetRound', () => {
 
     expect(reset.phase).toBe('idle')
     expect(reset.currentTopic).toBeNull()
-    expect(reset.passes).toBe(0)
     expect(reset.recentIds).toEqual(['a'])
   })
 })

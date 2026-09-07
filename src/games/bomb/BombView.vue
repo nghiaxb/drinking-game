@@ -16,7 +16,7 @@
         <IconBomb class="bomb-panel__icon" :size="56" stroke="1.6" aria-hidden="true" />
         <ol class="bomb-rules">
           <li>Cả bàn nhận một chủ đề chung.</li>
-          <li>Người giữ máy nói một đáp án rồi bấm chuyền.</li>
+          <li>Người giữ máy nói một đáp án rồi chuyền máy sang người kế tiếp.</li>
           <li>Không ai biết bom nổ lúc nào.</li>
         </ol>
         <p class="bomb-panel__note">{{ game.topicCount.value }} chủ đề</p>
@@ -41,12 +41,9 @@
           Bom nổ trên tay bạn
           <span class="bomb-result__drink">🍺 UỐNG!</span>
         </p>
-        <p v-else class="bomb-passes" data-testid="bomb-passes">
-          Đã chuyền {{ game.passes.value }} lượt
-        </p>
       </div>
 
-      <!-- Hidden while the fuse burns: the running screen is topic, bomb and the pass button only. -->
+      <!-- Hidden while the fuse burns: the running screen is just the topic and the ticking bomb. -->
       <fieldset v-if="!isBurning" class="bomb-fuse" data-testid="bomb-fuse">
         <legend class="bomb-fuse__legend">
           Bom nổ trong <strong>{{ minSeconds }}–{{ maxSeconds }} giây</strong>
@@ -99,18 +96,7 @@
       </button>
 
       <button
-        v-else-if="game.phase.value === 'running'"
-        type="button"
-        class="btn-tactile btn-tactile-primary bomb-action bomb-action--pass"
-        data-testid="bomb-pass"
-        @click="game.pass()"
-      >
-        Đã trả lời — chuyền
-        <IconArrowRight :size="20" stroke="2" aria-hidden="true" />
-      </button>
-
-      <button
-        v-else
+        v-else-if="game.phase.value === 'exploded'"
         type="button"
         class="btn-tactile btn-tactile-primary bomb-action"
         data-testid="bomb-replay"
@@ -128,7 +114,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
-import { IconArrowRight, IconBomb, IconPlayerPlay, IconRefresh } from '@tabler/icons-vue'
+import { IconBomb, IconPlayerPlay, IconRefresh } from '@tabler/icons-vue'
 import { useGameFeedback } from '@/composables/useGameFeedback'
 import { storage } from '@/services/storage'
 import { BOMB_CATEGORY_LABELS, BOMB_FUSE_BOUNDS } from './config'
@@ -143,7 +129,6 @@ const game = useBombGame({
     playClick: () => feedback.playClick(),
     playTick: () => feedback.playTick(),
     playExplosion: () => feedback.playExplosion(),
-    vibrateLight: () => feedback.vibrateLight(),
     vibrateHeavy: () => feedback.vibrateHeavy(),
   },
   primeAudio: () => feedback.primeAudio(),
@@ -170,10 +155,10 @@ const maxSeconds = computed(() => Math.round(game.fuseRange.value.maxMs / 1000))
 
 const statusText = computed(() => {
   if (isExploded.value) {
-    return `Bom nổ! Người đang giữ máy uống. Cả bàn đã chuyền ${game.passes.value} lượt.`
+    return 'Bom nổ! Người đang giữ máy uống.'
   }
   if (isBurning.value) {
-    return `Chủ đề: ${topicText.value}. Đã chuyền ${game.passes.value} lượt.`
+    return `Chủ đề: ${topicText.value}.`
   }
   return `Bấm bắt đầu để nhận chủ đề. Có ${game.topicCount.value} chủ đề. Bom nổ trong ${minSeconds.value} đến ${maxSeconds.value} giây.`
 })
@@ -400,12 +385,6 @@ onUnmounted(() => {
   letter-spacing: 0.1em;
 }
 
-.bomb-passes {
-  color: var(--color-ink-muted);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
 .bomb-result {
   display: flex;
   flex-wrap: wrap;
@@ -427,11 +406,6 @@ onUnmounted(() => {
   /* Tall on purpose: it is pressed by whoever is holding the phone, often in a hurry. */
   min-height: 3.5rem;
   font-size: 1.0625rem;
-}
-
-.bomb-action--pass {
-  min-height: 4.25rem;
-  font-size: 1.125rem;
 }
 
 @keyframes bomb-pulse {

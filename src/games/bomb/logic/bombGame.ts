@@ -119,7 +119,6 @@ export function createBombState(
     pool: [...pool],
     fuseRange: clampFuseRange(fuseRange),
     currentTopic: null,
-    passes: 0,
     recentIds: [],
   }
 }
@@ -146,21 +145,8 @@ export function startRound(state: BombGameState, rng: RandomSource): BombGameSta
     ...state,
     phase: 'running',
     currentTopic: topic,
-    passes: 0,
     recentIds: [...state.recentIds, topic.id].slice(-BOMB_CONFIG.recentAvoidanceCount),
   }
-}
-
-/**
- * Passing is bookkeeping, not a lever: it must not touch the fuse. If handing the phone over could
- * shorten or extend the timer, holding on would become the winning move and the bomb would stop
- * going round the table.
- */
-export function passBomb(state: BombGameState): BombGameState {
-  if (state.phase !== 'running') {
-    return state
-  }
-  return { ...state, passes: state.passes + 1 }
 }
 
 export function explodeBomb(state: BombGameState): BombGameState {
@@ -171,5 +157,5 @@ export function explodeBomb(state: BombGameState): BombGameState {
 }
 
 export function resetRound(state: BombGameState): BombGameState {
-  return { ...state, phase: 'idle', currentTopic: null, passes: 0 }
+  return { ...state, phase: 'idle', currentTopic: null }
 }

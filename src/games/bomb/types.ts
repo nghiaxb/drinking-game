@@ -31,6 +31,5 @@ export interface BombGameState {
   pool: BombTopic[]
   fuseRange: BombFuseRange
   currentTopic: BombTopic | null
-  passes: number
   recentIds: string[]
 }

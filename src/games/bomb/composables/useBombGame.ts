@@ -6,7 +6,6 @@ import {
   createBombState,
   explodeBomb,
   parsePersistedFuseRange,
-  passBomb,
   pickFuseMs,
   resetRound,
   resolveTickRampMs,
@@ -23,7 +22,6 @@ export interface BombFeedback {
   playClick: () => Promise<void>
   playTick: () => Promise<void>
   playExplosion: () => Promise<void>
-  vibrateLight: () => Promise<void>
   vibrateHeavy: () => Promise<void>
 }
 
@@ -38,7 +36,6 @@ export interface BombGameOptions {
 export interface BombGameController {
   phase: ComputedRef<BombPhase>
   currentTopic: ComputedRef<BombTopic | null>
-  passes: ComputedRef<number>
   topicCount: ComputedRef<number>
   fuseRange: ComputedRef<BombFuseRange>
   tickIntervalMs: Ref<number>
@@ -48,7 +45,6 @@ export interface BombGameController {
   setMax: (ms: number) => void
   saveFuseRange: () => Promise<void>
   start: () => boolean
-  pass: () => void
   dispose: () => void
 }
 
@@ -142,21 +138,6 @@ export function createBombGame(options: BombGameOptions): BombGameController {
     return true
   }
 
-  function pass(): void {
-    if (state.value.phase !== 'running') {
-      return
-    }
-
-    state.value = passBomb(state.value)
-
-    void Promise.resolve(options.feedback.playClick()).catch(() => {
-      // Click sound failure — safe no-op.
-    })
-    void Promise.resolve(options.feedback.vibrateLight()).catch(() => {
-      // Haptic failure — safe no-op.
-    })
-  }
-
   function dispose(): void {
     fuse.dispose()
     clearGraceTimer()
@@ -166,7 +147,6 @@ export function createBombGame(options: BombGameOptions): BombGameController {
   return {
     phase: computed(() => state.value.phase),
     currentTopic: computed(() => state.value.currentTopic),
-    passes: computed(() => state.value.passes),
     topicCount: computed(() => state.value.pool.length),
     fuseRange: computed(() => state.value.fuseRange),
     tickIntervalMs: fuse.tickIntervalMs,
@@ -176,7 +156,6 @@ export function createBombGame(options: BombGameOptions): BombGameController {
     setMax,
     saveFuseRange,
     start,
-    pass,
     dispose,
   }
 }
